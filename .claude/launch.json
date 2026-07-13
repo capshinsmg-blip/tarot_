@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "myoyeon-landing",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", "app", "-l", "3300"],
+      "port": 3300
+    }
+  ]
+}

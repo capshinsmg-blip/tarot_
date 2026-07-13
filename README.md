@@ -16,8 +16,8 @@
 | 04 | 프로필 제작 | ✅ 완료 (2026-07-14) — 이미지·바이오 확정 | [planning/04_프로필.md](planning/04_프로필.md) · [프로필 이미지](design/profile/myoyeon_profile.png) |
 | 05 | 메인 캐릭터 선정 | ✅ 완료 (2026-07-14) — **묘연이** | [planning/05_메인캐릭터.md](planning/05_메인캐릭터.md) · [최종 이미지](design/character/myoyeon_main.png) |
 | 06 | 타로카드 리디자인 | ✅ 완료 (2026-07-14) — 메이저 22장 + 뒷면 | [planning/06_타로카드.md](planning/06_타로카드.md) · [design/cards/](design/cards/) |
-| 07 | 랜딩페이지 제작 | ▶ 다음 | |
-| 08 | 예약체계 + 관리자탭 제작 | ⬜ | |
+| 07 | 랜딩페이지 제작 | ✅ v1 완료 (2026-07-14) — 배포는 CF Pages 연동 대기 | [planning/07_랜딩페이지.md](planning/07_랜딩페이지.md) · [app/](app/) |
+| 08 | 예약체계 + 관리자탭 제작 | ▶ 다음 | |
 | 09 | 인스타 ↔ 랜딩 동기화 | ⬜ | |
 | 10 | 피드 컨텐츠 기획 | ⬜ | |
 | 11 | 피드 제작 | ⬜ | |
@@ -29,6 +29,12 @@
 tarot/
 ├── README.md          ← 이 파일 (로드맵 + 진행상황)
 ├── planning/          ← 단계별 기획 문서 (01~12)
-├── design/            ← (예정) 브랜드 · 카드 · 피드 디자인 산출물
-└── app/               ← (예정) 랜딩페이지 + 예약 시스템 코드
+├── design/            ← 브랜드 · 캐릭터 · 카드 원본 (인쇄/피드용 고해상도)
+└── app/               ← 랜딩페이지 (Cloudflare Pages 배포 루트, 웹용 webp 에셋)
+```
+
+## 로컬 실행
+
+```
+npx serve app -l 3300   # → http://localhost:3300
 ```

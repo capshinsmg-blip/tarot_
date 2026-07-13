@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10142B">
+  <title>묘연 🌙 오늘의 운세 타로 — 무료 카드 한 장</title>
+  <meta name="description" content="자정의 공방에서 묘연이가 골라온 오늘의 카드. 회원가입 없이 하루 한 장, 무료로 뽑아보세요.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="묘연 🌙 오늘의 운세 타로">
+  <meta property="og:description" content="묘연이가 골라온 오늘의 카드 한 장, 무료로 뽑아보세요.">
+  <meta property="og:image" content="assets/character/myoyeon_profile.png">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" href="assets/character/myoyeon_profile.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- ─────────────────────────────────────────────
+       Meta Pixel — 12단계에서 아래 주석을 해제하고
+       'PIXEL_ID'를 실제 픽셀 ID로 교체하세요.
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'PIXEL_ID');
+    fbq('track', 'PageView');
+  </script>
+  ───────────────────────────────────────────── -->
+</head>
+<body>
+  <div id="stars"></div>
+  <div id="app">
+
+    <!-- S1 · 히어로 -->
+    <section id="s1" class="screen active">
+      <img class="avatar" src="assets/character/myoyeon_profile.png" alt="타로공방 묘연의 안내자, 고양이 묘연이">
+      <h1>오늘의 카드 한 장,<br>무료로 뽑아보세요</h1>
+      <p class="sub">자정의 공방에서 묘연이가 골라온 오늘의 운세</p>
+      <div id="already-banner" class="banner hidden">🌙 오늘의 카드는 이미 도착했어요</div>
+      <button id="btn-start" class="btn-primary">카드 뽑기 시작</button>
+      <p class="hero-note">회원가입 없이 · 하루 한 장 · 20초면 충분해요</p>
+    </section>
+
+    <!-- S2 · 카테고리 -->
+    <section id="s2" class="screen">
+      <h2>오늘 어떤 이야기가<br>궁금하세요?</h2>
+      <div class="cat-grid">
+        <button class="cat-btn" data-cat="love"><span class="emoji">💘</span>연애</button>
+        <button class="cat-btn" data-cat="money"><span class="emoji">💰</span>금전</button>
+        <button class="cat-btn" data-cat="work"><span class="emoji">💼</span>일 · 성장</button>
+        <button class="cat-btn" data-cat="overall"><span class="emoji">✨</span>오늘의 총운</button>
+      </div>
+    </section>
+
+    <!-- S3 · 셔플 & 스프레드 -->
+    <section id="s3" class="screen">
+      <p id="draw-hint">묘연이가 카드를 섞고 있어요…</p>
+      <div id="shuffle-stage"></div>
+      <div id="fan-wrap" class="hidden">
+        <div id="fan"></div>
+      </div>
+      <p id="scroll-hint" class="scroll-hint hidden">← 옆으로 넘기며 골라보세요 →</p>
+    </section>
+
+    <!-- S4 · 리빌 & 결과 -->
+    <section id="s4" class="screen">
+      <div id="reveal-stage">
+        <div id="flip-scene" class="flip-scene">
+          <div id="flip-inner" class="flip-inner">
+            <div class="face back"><img src="assets/cards/back.webp" alt="카드 뒷면"></div>
+            <div class="face front"><img id="card-img" src="" alt=""></div>
+          </div>
+        </div>
+      </div>
+      <div id="result-body" class="hidden">
+        <div id="replay-banner" class="banner fade-up hidden">🌙 오늘의 카드는 이미 도착했어요 — 내일 자정에 새 카드가 옵니다</div>
+        <p id="cat-label" class="cat-label fade-up"></p>
+        <h2 id="card-name" class="fade-up"></h2>
+        <p id="card-name-en" class="fade-up"></p>
+        <div id="keywords" class="fade-up"></div>
+        <p id="reading" class="fade-up"></p>
+        <div id="lucky" class="lucky-box fade-up"></div>
+        <div class="advice-bubble fade-up">
+          <img src="assets/character/myoyeon_profile.png" alt="묘연이">
+          <div>
+            <div class="who">묘연이의 한 마디</div>
+            <div class="msg" id="advice-msg"></div>
+          </div>
+        </div>
+        <div class="result-actions fade-up">
+          <button id="btn-save" class="btn-ghost">결과 이미지 저장 📸</button>
+          <a class="btn-ghost" href="https://www.instagram.com/myoyeon.tarot" target="_blank" rel="noopener">@myoyeon.tarot</a>
+        </div>
+        <p class="tomorrow fade-up">내일 자정, 새로운 카드가 도착해요 🌙</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 하단 고정 CTA -->
+  <div id="cta-bar" class="hidden">
+    <button id="btn-book" class="btn-primary">1:1 타로리딩 예약하기</button>
+  </div>
+
+  <script src="js/cards-data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
