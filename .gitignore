@@ -1,0 +1,13 @@
+# dependencies / build
+node_modules/
+dist/
+build/
+
+# env / secrets
+.env
+.env.*
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
