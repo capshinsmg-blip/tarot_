@@ -21,7 +21,7 @@
 | 05 | 메인 캐릭터 선정 | ✅ 완료 (2026-07-14) — **묘연이** | [planning/05_메인캐릭터.md](planning/05_메인캐릭터.md) · [최종 이미지](design/character/myoyeon_main.png) |
 | 06 | 타로카드 리디자인 | ✅ 완료 (2026-07-14) — 메이저 22장 + 뒷면 | [planning/06_타로카드.md](planning/06_타로카드.md) · [design/cards/](design/cards/) |
 | 07 | 랜딩페이지 제작 | ✅ 완료 (2026-07-14) — 배포 라이브 | [planning/07_랜딩페이지.md](planning/07_랜딩페이지.md) · [app/](app/) · [라이브 사이트](https://myoyeon.capshinsmg.workers.dev/) |
-| 08 | 예약체계 + 관리자탭 제작 | ✅ v1 구현 (2026-07-14) — 활성화는 D1 연결 5분 설정 대기 | [planning/08_예약체계.md](planning/08_예약체계.md) · [worker/](worker/) · [app/admin/](app/admin/) |
+| 08 | 예약체계 + 관리자탭 제작 | ✅ 라이브 가동 (2026-07-14) — 8주 시간표 · 공방 지도 안내 · 텔레그램 담당배정봇(그룹 연결 대기) | [planning/08_예약체계.md](planning/08_예약체계.md) · [worker/](worker/) · [app/admin/](app/admin/) |
 | 09 | 인스타 ↔ 랜딩 동기화 | ⬜ | |
 | 10 | 피드 컨텐츠 기획 | ⬜ | |
 | 11 | 피드 제작 | ⬜ | |

@@ -47,6 +47,11 @@
 
     <!-- A3 · 슬롯(시간표) 관리 -->
     <section id="tab-slots" class="hidden">
+      <div class="pager">
+        <button class="mini" id="btn-prev-w" disabled>◀ 이전 2주</button>
+        <span id="range-label"></span>
+        <button class="mini" id="btn-next-w">다음 2주 ▶</button>
+      </div>
       <div class="chips scroll" id="slot-dates"></div>
       <div class="bulk">
         <button class="mini" id="btn-open-all">이 날 전체 열기</button>
@@ -66,6 +71,10 @@
       <h2>퍼널 (방문 → 신청)</h2>
       <table id="funnel"></table>
       <p class="hint">랜딩 자체 집계예요. 메타 픽셀(12단계) 연동 전에도 쌓여요.</p>
+
+      <h2>🔔 텔레그램 담당배정봇</h2>
+      <div id="tg-box" class="tgbox">확인 중…</div>
+      <p class="hint">새 신청이 타로사 그룹방에 올라가요. [🙋 담당하기]를 먼저 누른 타로사가 담당이 됩니다.</p>
     </section>
   </div>
 

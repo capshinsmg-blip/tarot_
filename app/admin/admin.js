@@ -15,8 +15,10 @@ const CAT_KO = { love: "💘 연애", money: "💰 금전", work: "💼 일·성
 const $id = (s) => document.getElementById(s);
 
 let resScope = "pending";
-let slotData = { today: "", slots: [] }; // GET /api/admin/slots 응답
+let slotData = { today: "", slots: [] }; // GET /api/admin/slots 응답 (현재 2주 창)
 let selDate = "";
+let baseToday = "";     // 서버 기준 오늘 (KST)
+let rangeOffset = 0;    // 시간표 창 시작 오프셋 (0·14·28·42 — 최대 8주)
 let toastTimer = null;
 
 /* ── API 공통 ── */
@@ -108,9 +110,13 @@ async function loadReservations() {
 }
 async function loadSlots() {
   try {
-    slotData = await api("/admin/slots");
-    if (!selDate) selDate = slotData.today;
-    renderSlotDates();
+    const from = baseToday ? addDaysStr(baseToday, rangeOffset) : "";
+    slotData = await api(`/admin/slots${from ? `?from=${from}&days=14` : ""}`);
+    if (!baseToday) baseToday = slotData.today;
+    const winStart = slotData.from || slotData.today;
+    if (!selDate || selDate < winStart || selDate > addDaysStr(winStart, 13)) selDate = winStart;
+    renderPager(winStart);
+    renderSlotDates(winStart);
     renderSlotGrid();
   } catch (e) { /* 401은 showLogin 처리됨 */ }
 }
@@ -118,6 +124,9 @@ async function loadStats() {
   try {
     const s = await api("/admin/stats");
     renderStats(s);
+  } catch (e) { /* 무시 */ }
+  try {
+    renderTg(await api("/admin/telegram/status"));
   } catch (e) { /* 무시 */ }
 }
 
@@ -153,7 +162,8 @@ function renderReservations(rows, today) {
           <span class="res-created">신청 ${fmtCreated(r.created_at)}</span>
         </div>
         <div class="res-who">${esc(r.name)} · <a href="tel:${r.phone.replace(/\D/g, "")}">${r.phone}</a>
-          ${r.category ? `<span class="res-cat"> · ${CAT_KO[r.category] || ""}</span>` : ""}</div>
+          ${r.category ? `<span class="res-cat"> · ${CAT_KO[r.category] || ""}</span>` : ""}
+          ${r.assignee_name ? `<span class="res-cat"> · 🙋 담당 ${esc(r.assignee_name)}</span>` : ""}</div>
         ${r.note ? `<div class="res-note">💬 ${esc(r.note)}</div>` : ""}
         <div class="res-actions">${actions}</div>
       </div>`;
@@ -180,17 +190,22 @@ async function actCancel(id, isReject) {
 window.actApprove = actApprove;
 window.actCancel = actCancel;
 
-/* ── A3 시간표 렌더 ── */
-function renderSlotDates() {
+/* ── A3 시간표 렌더 (2주 창 · 8주 페이징) ── */
+function renderPager(winStart) {
+  $id("range-label").textContent = `${fmtMD(winStart)} ~ ${fmtMD(addDaysStr(winStart, 13))}`;
+  $id("btn-prev-w").disabled = rangeOffset <= 0;
+  $id("btn-next-w").disabled = rangeOffset >= 42;
+}
+function renderSlotDates(winStart) {
   const wrap = $id("slot-dates");
   wrap.innerHTML = "";
   for (let i = 0; i < 14; i++) {
-    const d = addDaysStr(slotData.today, i);
+    const d = addDaysStr(winStart, i);
     const openCnt = slotData.slots.filter((s) => s.date === d).length;
     const btn = document.createElement("button");
     btn.className = "chip" + (d === selDate ? " on" : "");
-    btn.innerHTML = `${fmtMD(d)} ${i === 0 ? "오늘" : dowOf(d)}<small>${openCnt ? openCnt + "칸 열림" : "닫힘"}</small>`;
-    btn.onclick = () => { selDate = d; renderSlotDates(); renderSlotGrid(); };
+    btn.innerHTML = `${fmtMD(d)} ${d === baseToday ? "오늘" : dowOf(d)}<small>${openCnt ? openCnt + "칸 열림" : "닫힘"}</small>`;
+    btn.onclick = () => { selDate = d; renderSlotDates(winStart); renderSlotGrid(); };
     wrap.appendChild(btn);
   }
 }
@@ -245,6 +260,32 @@ function renderStats(s) {
   $id("funnel").innerHTML = `<tr><th>단계</th><th>오늘</th><th>7일 (전환)</th></tr>${rows}`;
 }
 
+/* ── A4 텔레그램 봇 연결 ── */
+function renderTg(t) {
+  const box = $id("tg-box");
+  if (!t.configured) {
+    box.innerHTML = `아직 봇 토큰이 없어요.<br><small>텔레그램 <b>@BotFather</b>에서 봇 생성 → Cloudflare(myoyeon → Settings)에
+      <b>TELEGRAM_BOT_TOKEN</b> 시크릿 추가 → 봇을 타로사 그룹에 초대 → 여기서 연결 (절차: planning/08 §8)</small>`;
+    return;
+  }
+  box.innerHTML = t.connected
+    ? `✅ 연결됨 · <b>${esc(t.chat_title || "그룹")}</b><button class="mini" id="btn-tg-setup">재연결</button>`
+    : `토큰 확인 완료 — 이제 그룹만 연결하면 돼요.<button class="mini" id="btn-tg-setup">그룹 연결하기</button><br>
+       <small>봇을 타로사 그룹에 초대하고, 그룹에 아무 메시지 1개를 보낸 뒤 누르세요.</small>`;
+  const btn = $id("btn-tg-setup");
+  if (btn) btn.onclick = tgConnect;
+}
+async function tgConnect() {
+  toast("텔레그램 연결 중…");
+  try {
+    const r = await api("/admin/telegram/setup", { method: "POST", body: {} });
+    toast(`✅ 연결 완료 — <b>${esc(r.chat_title || "그룹")}</b>에 확인 메시지를 보냈어요`, 7000);
+  } catch (e) {
+    toast(esc(e.message), 9000);
+  }
+  loadStats();
+}
+
 /* ── 탭 · 초기화 ── */
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.onclick = () => {
@@ -266,6 +307,8 @@ $id("btn-logout").onclick = async () => {
   try { await api("/admin/logout", { method: "POST" }); } catch (e) { /* 무시 */ }
   showLogin();
 };
+$id("btn-prev-w").onclick = () => { rangeOffset = Math.max(0, rangeOffset - 14); selDate = ""; loadSlots(); };
+$id("btn-next-w").onclick = () => { rangeOffset = Math.min(42, rangeOffset + 14); selDate = ""; loadSlots(); };
 $id("btn-open-all").onclick = () => {
   const openTimes = new Set(slotData.slots.filter((s) => s.date === selDate).map((s) => s.time));
   const toOpen = TIMES.filter((t) => !openTimes.has(t));
