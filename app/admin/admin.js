@@ -271,7 +271,7 @@ function renderTg(t) {
   box.innerHTML = t.connected
     ? `✅ 연결됨 · <b>${esc(t.chat_title || "그룹")}</b><button class="mini" id="btn-tg-setup">재연결</button>`
     : `토큰 확인 완료 — 이제 그룹만 연결하면 돼요.<button class="mini" id="btn-tg-setup">그룹 연결하기</button><br>
-       <small>봇을 타로사 그룹에 초대하고, 그룹에 아무 메시지 1개를 보낸 뒤 누르세요.</small>`;
+       <small>봇을 타로사 그룹에 초대하고, 그룹에 <b>/start</b> 를 보낸 뒤 누르세요.</small>`;
   const btn = $id("btn-tg-setup");
   if (btn) btn.onclick = tgConnect;
 }

@@ -491,15 +491,17 @@ async function tgSetup(env, url) {
     throw new ApiError(503, "setup_required", "TELEGRAM_BOT_TOKEN 시크릿을 먼저 설정해 주세요. (Cloudflare → myoyeon → Settings → Variables and Secrets)");
   await tgCall(env, "deleteWebhook", {}); // getUpdates를 쓰기 위해 잠시 해제
   const updates = await tgCall(env, "getUpdates", { limit: 100, allowed_updates: ["message", "my_chat_member"] });
+  if (!updates.ok)
+    throw new ApiError(502, "tg_error", `텔레그램 응답 오류: ${updates.description || "알 수 없음"} — TELEGRAM_BOT_TOKEN 값이 BotFather가 준 토큰 그대로인지 확인해 주세요.`);
   let chat = null;
-  if (updates.ok && Array.isArray(updates.result)) {
+  if (Array.isArray(updates.result)) {
     for (const u of updates.result.reverse()) {
       const c = (u.message && u.message.chat) || (u.my_chat_member && u.my_chat_member.chat);
       if (c && (c.type === "group" || c.type === "supergroup")) { chat = c; break; }
     }
   }
   if (!chat)
-    throw new ApiError(404, "no_group", "그룹을 못 찾았어요. ① 봇을 타로사 그룹에 초대 ② 그룹에 아무 메시지 1개 전송 ③ 다시 이 버튼을 눌러주세요.");
+    throw new ApiError(404, "no_group", "그룹 메시지를 아직 못 받았어요. 그룹 채팅창에 /start 를 보낸 뒤 다시 눌러주세요. (봇 프라이버시 모드 때문에 일반 메시지는 봇에게 안 보일 수 있어요 — /로 시작하는 명령어는 항상 전달돼요)");
   const secret = [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
   await setSetting(env, "tg_chat_id", String(chat.id));
   await setSetting(env, "tg_chat_title", chat.title || "");
