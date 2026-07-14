@@ -354,15 +354,24 @@ h1, h2, .serif { font-family: "Gowun Batang", "Nanum Myeongjo", serif; font-weig
 .bk-consent-detail { font-size: 12px; color: rgba(246, 239, 227, .45); word-break: keep-all; margin-top: -6px; }
 
 .bk-loc { display: flex; flex-direction: column; gap: 8px; }
-.bk-map {
-  border-radius: 14px; overflow: hidden;
+.bk-loccard {
+  border-radius: 14px;
   border: 1px solid rgba(169, 155, 214, .3);
   background: rgba(246, 239, 227, .04);
+  padding: 15px 16px;
+  display: flex; flex-direction: column; gap: 3px;
 }
-.bk-map iframe { display: block; width: 100%; height: 158px; border: 0; }
-.bk-addr { font-size: 13.5px; color: var(--cream); }
+.bk-loc-road { font-size: 15px; font-weight: 600; color: var(--cream); }
+.bk-loc-detail { font-size: 13.5px; color: var(--lilac); }
 .bk-mapbtns { display: flex; gap: 8px; }
-.bk-mapbtns .btn-ghost { flex: 1; text-align: center; text-decoration: none; font-size: 13px; padding: 10px 0; }
+.bk-mapbtns .btn-ghost { flex: 1; text-align: center; text-decoration: none; font-size: 13px; padding: 11px 0; }
+.bk-navermap { /* 네이버 브랜드 그린 — 한국 유저에게 "지도 앱으로 열림"이 즉시 읽히는 색 */
+  flex: 1.6; display: block; text-align: center; text-decoration: none;
+  background: #03C75A; color: #fff;
+  font-size: 13.5px; font-weight: 700;
+  padding: 11px 0; border-radius: 999px;
+}
+.bk-navermap:active { opacity: .85; }
 
 .bk-summary {
   border: 1px solid rgba(169, 155, 214, .3); background: rgba(169, 155, 214, .08);

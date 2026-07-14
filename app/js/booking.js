@@ -5,10 +5,11 @@
 (() => {
   const $id = (s) => document.getElementById(s);
   const MENU_LINE = "30분 · 5,000원 · 현장 결제";
-  const SHOP_ADDRESS = "경기도 안산시 단원구 광덕대로 168";
-  const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(SHOP_ADDRESS)}&output=embed&hl=ko&z=16`;
-  const MAP_KAKAO = `https://map.kakao.com/link/search/${encodeURIComponent(SHOP_ADDRESS)}`;
-  const MAP_NAVER = `https://map.naver.com/v5/search/${encodeURIComponent(SHOP_ADDRESS)}`;
+  const SHOP_ROAD = "경기도 안산시 단원구 광덕대로 168";
+  const SHOP_DETAIL = "신화타운 3층 · 멜로우스페이스";
+  // 지도 검색은 도로명까지만 (층·호수는 검색어에 넣으면 결과가 안 나옴)
+  const MAP_KAKAO = `https://map.kakao.com/link/search/${encodeURIComponent(SHOP_ROAD)}`;
+  const MAP_NAVER = `https://map.naver.com/v5/search/${encodeURIComponent(SHOP_ROAD)}`;
   const CAT_LINE = {
     love: "오늘 뽑은 연애 카드의 이야기, 직접 만나 더 깊이 풀어봐요",
     money: "금전 흐름은 카드 한 장보다 길게 — 공방에서 차분히 짚어드려요",
@@ -83,11 +84,13 @@
         </div>
         <div class="bk-loc">
           <p class="bk-label">📍 공방 위치 — 오프라인 방문 리딩이에요</p>
-          <div class="bk-map"><iframe src="${MAP_EMBED}" loading="lazy" title="타로공방 묘연 위치 지도" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-          <p class="bk-addr">${SHOP_ADDRESS}</p>
+          <div class="bk-loccard">
+            <div class="bk-loc-road">${SHOP_ROAD}</div>
+            <div class="bk-loc-detail">${SHOP_DETAIL}</div>
+          </div>
           <div class="bk-mapbtns">
-            <a class="btn-ghost" href="${MAP_KAKAO}" target="_blank" rel="noopener">카카오맵으로 보기</a>
-            <a class="btn-ghost" href="${MAP_NAVER}" target="_blank" rel="noopener">네이버지도로 보기</a>
+            <a class="bk-navermap" href="${MAP_NAVER}" target="_blank" rel="noopener">네이버지도로 길찾기</a>
+            <a class="btn-ghost" href="${MAP_KAKAO}" target="_blank" rel="noopener">카카오맵</a>
           </div>
         </div>
         <button class="btn-primary" id="bk-next1">일시 고르기</button>
@@ -117,10 +120,10 @@
         <h4>신청이 접수됐어요!</h4>
         <div class="bk-summary" id="bk-sum4"></div>
         <p class="bk-note2">운영자가 확인한 뒤 <b>문자로 확정 안내</b>를 드려요.<br>보통 몇 시간 안에 연락드릴게요 🌙</p>
-        <div class="bk-summary" style="width:100%"><b>📍 오시는 길</b><br>${SHOP_ADDRESS}</div>
+        <div class="bk-summary" style="width:100%"><b>📍 오시는 길</b><br>${SHOP_ROAD}<br>${SHOP_DETAIL}</div>
         <div class="bk-mapbtns" style="width:100%">
+          <a class="bk-navermap" href="${MAP_NAVER}" target="_blank" rel="noopener">네이버지도로 길찾기</a>
           <a class="btn-ghost" href="${MAP_KAKAO}" target="_blank" rel="noopener">카카오맵</a>
-          <a class="btn-ghost" href="${MAP_NAVER}" target="_blank" rel="noopener">네이버지도</a>
         </div>
         <a class="btn-ghost" style="width:100%" href="https://www.instagram.com/myoyeon.tarot" target="_blank" rel="noopener">@myoyeon.tarot 팔로우하기</a>
         <button class="btn-primary" id="bk-done-close" style="width:100%">닫기</button>
