@@ -95,10 +95,13 @@ async function ensureSchema(env) {
       key TEXT PRIMARY KEY, value TEXT NOT NULL)`),
   ]);
   // v2 마이그레이션: 담당 타로사 · 텔레그램 메시지 (이미 있으면 duplicate 에러 → 무시)
-  for (const col of ["assignee_name TEXT", "assignee_tg TEXT", "tg_msg_id TEXT"]) {
+  // v3 (9단계): source — 유입 경로 (instagram/bio, meta/paid …)
+  for (const col of ["assignee_name TEXT", "assignee_tg TEXT", "tg_msg_id TEXT", "source TEXT"]) {
     try { await env.DB.prepare(`ALTER TABLE reservations ADD COLUMN ${col}`).run(); }
     catch (e) { /* duplicate column */ }
   }
+  try { await env.DB.prepare("ALTER TABLE events ADD COLUMN source TEXT").run(); }
+  catch (e) { /* duplicate column */ }
   schemaReady = true;
 }
 
@@ -146,12 +149,16 @@ function normPhone(raw) {
   if (!/^01[016789]\d{7,8}$/.test(d)) return null;
   return d.length === 11 ? `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}` : `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
 }
+function normSource(raw) { // "instagram/bio" 형식만 통과 (planning/09 §2)
+  return String(raw || "").slice(0, 40).replace(/[^\w/-]/g, "");
+}
 
 /* ── 공개: 퍼널 이벤트 ── */
 async function apiEvent(req, env) {
   const b = await readJson(req);
   if (!EVENT_NAMES.has(b.name)) return json({ ok: false });
-  await env.DB.prepare("INSERT INTO events (name, date) VALUES (?1, ?2)").bind(b.name, kstParts().date).run();
+  await env.DB.prepare("INSERT INTO events (name, date, source) VALUES (?1, ?2, ?3)")
+    .bind(b.name, kstParts().date, normSource(b.source)).run();
   return json({ ok: true });
 }
 
@@ -179,6 +186,7 @@ async function apiCreateReservation(req, env, ctx) {
   const phone = normPhone(b.phone);
   const note = String(b.note || "").trim().slice(0, 200);
   const category = CATEGORIES.has(b.category) ? b.category : "";
+  const source = normSource(b.source);
   const slotId = Number(b.slot_id);
 
   if (!name || name.length > 20) throw new ApiError(400, "bad_name", "이름을 1~20자로 입력해 주세요.");
@@ -202,8 +210,8 @@ async function apiCreateReservation(req, env, ctx) {
   let id;
   try {
     const r = await env.DB.prepare(
-      "INSERT INTO reservations (slot_id, name, phone, note, category) VALUES (?1, ?2, ?3, ?4, ?5)"
-    ).bind(slotId, name, phone, note, category).run();
+      "INSERT INTO reservations (slot_id, name, phone, note, category, source) VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
+    ).bind(slotId, name, phone, note, category, source).run();
     id = r.meta.last_row_id;
   } catch (e) {
     if (String(e).includes("UNIQUE")) throw new ApiError(409, "slot_taken", "아쉽지만 방금 다른 분이 그 시간을 신청했어요. 다른 시간을 골라주세요.");
@@ -277,7 +285,7 @@ function adminLogout(url) {
 async function adminListReservations(env, url) {
   const scope = url.searchParams.get("scope") || "pending";
   const today = kstParts().date;
-  const base = `SELECT r.id, r.name, r.phone, r.note, r.category, r.status, r.created_at, r.assignee_name, s.date, s.time
+  const base = `SELECT r.id, r.name, r.phone, r.note, r.category, r.status, r.created_at, r.assignee_name, r.source, s.date, s.time
                 FROM reservations r JOIN slots s ON s.id = r.slot_id`;
   let q;
   if (scope === "pending") q = env.DB.prepare(`${base} WHERE r.status = 'pending' ORDER BY s.date, s.time`);
@@ -377,11 +385,20 @@ async function adminStats(env) {
   const week = await env.DB.prepare(
     "SELECT COUNT(*) AS c FROM reservations WHERE created_at >= datetime('now', '-7 days')"
   ).first();
+  // 유입 경로별 방문·신청 (9단계 — 구버전 이벤트는 direct로 집계)
+  const sources = await env.DB.prepare(
+    `SELECT COALESCE(NULLIF(source, ''), 'direct') AS src,
+            SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS visits,
+            SUM(CASE WHEN name = 'booking_submit' THEN 1 ELSE 0 END) AS bookings
+     FROM events WHERE date >= ?1
+     GROUP BY src ORDER BY visits DESC LIMIT 8`
+  ).bind(weekAgo).all();
   return json({
     ok: true, today,
     reservations: { pending: pending.c, upcoming: upcoming.c, week: week.c },
     funnelToday: await funnel(today),
     funnelWeek: await funnel(weekAgo),
+    sourcesWeek: sources.results,
   });
 }
 

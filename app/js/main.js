@@ -11,9 +11,28 @@ const $ = (sel) => document.querySelector(sel);
 
 let state = { cat: null, card: null };
 
+/* ── 유입 경로(UTM) 캡처 — 9단계
+   ?utm_source=instagram&utm_medium=bio → "instagram/bio"로 세션 유지,
+   이후 모든 퍼널 이벤트·예약 신청에 따라붙는다 (planning/09 §2) ── */
+function captureSource() {
+  try {
+    const q = new URLSearchParams(location.search);
+    const clean = (v, n) => (q.get(v) || "").slice(0, n).replace(/[^\w-]/g, "");
+    const src = clean("utm_source", 20);
+    const med = clean("utm_medium", 20);
+    if (src) sessionStorage.setItem("myoyeon_src", med ? `${src}/${med}` : src);
+  } catch (e) { /* 무시 */ }
+}
+function getSource() {
+  try { return sessionStorage.getItem("myoyeon_src") || ""; } catch (e) { return ""; }
+}
+window.getSource = getSource;
+
 /* ── 픽셀 이벤트 (12단계에서 실제 Pixel ID 삽입 — index.html 주석 참고) ── */
 function track(name, params) {
   const std = ["ViewContent", "InitiateCheckout", "Schedule", "Lead"];
+  const src = getSource();
+  if (src) params = { ...(params || {}), traffic_source: src };
   try {
     if (typeof fbq === "function") {
       std.includes(name) ? fbq("track", name, params) : fbq("trackCustom", name, params);
@@ -356,6 +375,7 @@ window.openDMSheet = openSheet; // booking.js가 API 장애 시 폴백으로 호
 
 /* ── 초기화 ── */
 document.addEventListener("DOMContentLoaded", () => {
+  captureSource(); // 유입 UTM은 다른 이벤트가 찍히기 전에 먼저 잡는다
   makeStars();
   initHero();
   initCategory();

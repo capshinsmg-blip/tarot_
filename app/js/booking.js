@@ -28,7 +28,7 @@
       fetch("/api/event", {
         method: "POST", keepalive: true,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, source: (window.getSource && window.getSource()) || "" }),
       }).catch(() => {});
     } catch (e) { /* 무시 */ }
   }
@@ -262,6 +262,7 @@
         body: JSON.stringify({
           slot_id: sel.slotId, name, phone, note,
           category: savedCat(), consent: true,
+          source: (window.getSource && window.getSource()) || "", // 유입 경로 (9단계)
           website: $id("bk-web").value, // 허니팟
         }),
       });

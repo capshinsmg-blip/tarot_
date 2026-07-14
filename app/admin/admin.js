@@ -163,7 +163,8 @@ function renderReservations(rows, today) {
         </div>
         <div class="res-who">${esc(r.name)} · <a href="tel:${r.phone.replace(/\D/g, "")}">${r.phone}</a>
           ${r.category ? `<span class="res-cat"> · ${CAT_KO[r.category] || ""}</span>` : ""}
-          ${r.assignee_name ? `<span class="res-cat"> · 🙋 담당 ${esc(r.assignee_name)}</span>` : ""}</div>
+          ${r.assignee_name ? `<span class="res-cat"> · 🙋 담당 ${esc(r.assignee_name)}</span>` : ""}
+          ${r.source ? `<span class="res-cat"> · 📍 ${esc(r.source)}</span>` : ""}</div>
         ${r.note ? `<div class="res-note">💬 ${esc(r.note)}</div>` : ""}
         <div class="res-actions">${actions}</div>
       </div>`;
@@ -258,6 +259,13 @@ function renderStats(s) {
     return `<tr><td>${label}</td><td>${t}</td><td>${w} ${pct}</td></tr>`;
   }).join("");
   $id("funnel").innerHTML = `<tr><th>단계</th><th>오늘</th><th>7일 (전환)</th></tr>${rows}`;
+
+  // 유입 경로 (9단계 — planning/09 §2 링크 맵과 표기 동일)
+  const srcRows = (s.sourcesWeek || [])
+    .map((r) => `<tr><td>${esc(r.src)}</td><td>${r.visits}</td><td>${r.bookings}</td></tr>`)
+    .join("");
+  $id("sources").innerHTML = `<tr><th>유입</th><th>방문</th><th>신청</th></tr>` +
+    (srcRows || `<tr><td colspan="3" class="empty-cell">아직 유입 데이터가 없어요</td></tr>`);
 }
 
 /* ── A4 텔레그램 봇 연결 ── */
