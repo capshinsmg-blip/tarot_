@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#10142B">
+  <title>묘연 관리자 🌙</title>
+  <link rel="icon" href="../assets/character/myoyeon_profile.png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- A1 · 로그인 -->
+  <div id="login" class="view hidden">
+    <img src="../assets/character/myoyeon_profile.png" alt="묘연이">
+    <h1>묘연 관리자</h1>
+    <input type="password" id="pw" placeholder="비밀번호" autocomplete="current-password">
+    <button class="btn-gold" id="btn-login">열기 🔑</button>
+    <p id="login-msg"></p>
+  </div>
+
+  <!-- A2~A4 -->
+  <div id="app" class="view hidden">
+    <header>
+      <h1>묘연 관리자 🌙</h1>
+      <div class="head-actions">
+        <button class="mini" id="btn-refresh">새로고침</button>
+        <button class="mini" id="btn-logout">잠금</button>
+      </div>
+    </header>
+    <nav>
+      <button class="tab on" data-tab="res">📋 예약</button>
+      <button class="tab" data-tab="slots">🗓 시간표</button>
+      <button class="tab" data-tab="stats">📈 통계</button>
+    </nav>
+
+    <!-- A2 · 예약 대시보드 -->
+    <section id="tab-res">
+      <div class="chips">
+        <button class="chip on" data-scope="pending">대기</button>
+        <button class="chip" data-scope="upcoming">확정 · 예정</button>
+        <button class="chip" data-scope="all">전체</button>
+      </div>
+      <div id="res-list"></div>
+    </section>
+
+    <!-- A3 · 슬롯(시간표) 관리 -->
+    <section id="tab-slots" class="hidden">
+      <div class="chips scroll" id="slot-dates"></div>
+      <div class="bulk">
+        <button class="mini" id="btn-open-all">이 날 전체 열기</button>
+        <button class="mini" id="btn-close-all">전체 닫기</button>
+      </div>
+      <div id="slot-grid"></div>
+      <p class="legend">
+        <span class="lg closed"></span>닫힘&nbsp;&nbsp;
+        <span class="lg open"></span>열림&nbsp;&nbsp;
+        <span class="lg booked"></span>예약됨
+      </p>
+    </section>
+
+    <!-- A4 · 통계 -->
+    <section id="tab-stats" class="hidden">
+      <div id="stat-cards" class="cards"></div>
+      <h2>퍼널 (방문 → 신청)</h2>
+      <table id="funnel"></table>
+      <p class="hint">랜딩 자체 집계예요. 메타 픽셀(12단계) 연동 전에도 쌓여요.</p>
+    </section>
+  </div>
+
+  <div id="toast" class="hidden"></div>
+  <script src="admin.js"></script>
+</body>
+</html>

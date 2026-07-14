@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["-y", "serve", "app", "-l", "3300"],
       "port": 3300
+    },
+    {
+      "name": "myoyeon-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "wrangler", "dev", "-c", "wrangler.dev.jsonc", "--port", "8788"],
+      "port": 8788
     }
   ]
 }

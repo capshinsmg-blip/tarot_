@@ -289,6 +289,91 @@ h1, h2, .serif { font-family: "Gowun Batang", "Nanum Myeongjo", serif; font-weig
 #sheet p { font-size: 14.5px; color: var(--cream); word-break: keep-all; }
 #sheet .note { font-size: 12.5px; color: rgba(246, 239, 227, .45); }
 
+/* ── 예약 3스텝 시트 (8단계) ── */
+#sheet.bk { max-height: 88svh; overflow-y: auto; gap: 0; }
+.bk-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.bk-head h3 { flex: 1; font-size: 19px; color: var(--gold); font-family: "Gowun Batang", serif; }
+.bk-back {
+  appearance: none; background: transparent; border: none; cursor: pointer;
+  color: var(--lilac); font-size: 26px; line-height: 1; padding: 0 10px 4px 2px; margin-left: -4px;
+  font-family: inherit;
+}
+.bk-dots { display: flex; gap: 5px; }
+.bk-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(169, 155, 214, .3); transition: background .2s; }
+.bk-dots i.on { background: var(--gold); }
+
+.bk-step { display: flex; flex-direction: column; gap: 13px; animation: screenIn .3s ease both; }
+.bk-menu {
+  border: 1px solid var(--gold-dim); background: rgba(233, 185, 110, .07);
+  border-radius: 16px; padding: 18px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.bk-menu-title { font-size: 17px; font-weight: 700; color: var(--cream); }
+.bk-menu-title span {
+  font-size: 11.5px; color: var(--deep); background: var(--gold);
+  border-radius: 999px; padding: 2px 9px; margin-left: 7px; font-weight: 700; vertical-align: 2px;
+}
+.bk-menu-meta { color: var(--gold); font-size: 14.5px; font-weight: 600; }
+.bk-menu-desc { color: var(--lilac); font-size: 13.5px; word-break: keep-all; }
+
+.bk-label { font-size: 12.5px; color: var(--lilac); letter-spacing: .08em; }
+.bk-dates { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.bk-dates::-webkit-scrollbar { display: none; }
+.bk-date {
+  flex: 0 0 auto; appearance: none; cursor: pointer; font-family: inherit;
+  background: rgba(246, 239, 227, .05); border: 1px solid rgba(169, 155, 214, .35);
+  color: var(--cream); border-radius: 12px; padding: 8px 13px;
+  font-size: 13.5px; text-align: center; line-height: 1.35;
+}
+.bk-date small { display: block; font-size: 10.5px; color: var(--lilac); }
+.bk-date:disabled { opacity: .28; cursor: default; }
+.bk-date.sel { border-color: var(--gold); background: rgba(233, 185, 110, .14); }
+.bk-date.sel, .bk-date.sel small { color: var(--gold); }
+
+.bk-times { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; min-height: 44px; }
+.bk-time {
+  appearance: none; cursor: pointer; font-family: inherit;
+  background: rgba(246, 239, 227, .05); border: 1px solid rgba(169, 155, 214, .35);
+  color: var(--cream); border-radius: 10px; padding: 10px 0; font-size: 14px;
+}
+.bk-time.sel { border-color: var(--gold); background: var(--gold); color: var(--deep); font-weight: 700; }
+.bk-empty { grid-column: 1 / -1; color: rgba(246, 239, 227, .45); font-size: 13px; text-align: center; padding: 12px 0; line-height: 1.7; }
+
+.bk-input {
+  appearance: none; width: 100%;
+  background: rgba(246, 239, 227, .06); border: 1px solid rgba(169, 155, 214, .35);
+  color: var(--cream); border-radius: 12px; padding: 14px; font-size: 15px; font-family: inherit;
+}
+.bk-input::placeholder { color: rgba(246, 239, 227, .35); }
+.bk-input:focus { outline: none; border-color: var(--gold); }
+.bk-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.bk-consent { display: flex; gap: 9px; align-items: flex-start; font-size: 13.5px; color: var(--cream); cursor: pointer; }
+.bk-consent input { width: 17px; height: 17px; accent-color: var(--gold); margin-top: 2px; flex-shrink: 0; }
+.bk-consent b { color: var(--gold); font-weight: 600; }
+.bk-consent-detail { font-size: 12px; color: rgba(246, 239, 227, .45); word-break: keep-all; margin-top: -6px; }
+
+.bk-summary {
+  border: 1px solid rgba(169, 155, 214, .3); background: rgba(169, 155, 214, .08);
+  border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--cream); line-height: 1.7;
+}
+.bk-summary b { color: var(--gold); }
+.bk-error { color: #E58A8A; font-size: 13px; text-align: center; padding-top: 10px; }
+
+.bk-done { text-align: center; align-items: center; padding: 8px 0 4px; }
+.bk-check {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(233, 185, 110, .12); border: 1px solid var(--gold-dim);
+  color: var(--gold); font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+}
+.bk-done h4 { font-size: 19px; color: var(--cream); font-family: "Gowun Batang", serif; }
+.bk-done .bk-summary { width: 100%; text-align: left; }
+.bk-note2 { font-size: 13.5px; color: var(--lilac); word-break: keep-all; }
+.bk-note2 b { color: var(--gold); }
+
+.btn-primary:disabled { opacity: .45; box-shadow: none; }
+
 /* ── 공유 이미지 모달 ── */
 #share-modal {
   position: fixed; inset: 0; z-index: 70;

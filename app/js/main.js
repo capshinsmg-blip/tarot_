@@ -333,7 +333,7 @@ function openShareModal(dataUrl) {
   try { a.click(); } catch (e) { /* iOS 등은 길게 눌러 저장 */ }
 }
 
-/* ── 예약 바텀시트 (v1 스텁 — 8단계에서 자체 예약으로 교체) ── */
+/* ── 예약 바텀시트 (DM 안내 — 8단계 예약 API 미연결 시 폴백 전용) ── */
 function openSheet() {
   track("InitiateCheckout", { content_name: "tarot_reading" });
   const dim = document.createElement("div");
@@ -352,6 +352,7 @@ function openSheet() {
   dim.onclick = close;
   $("#sheet-close").onclick = close;
 }
+window.openDMSheet = openSheet; // booking.js가 API 장애 시 폴백으로 호출
 
 /* ── 초기화 ── */
 document.addEventListener("DOMContentLoaded", () => {
@@ -359,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initHero();
   initCategory();
   $("#btn-save").onclick = makeShareImage;
-  $("#btn-book").onclick = openSheet;
+  $("#btn-book").onclick = () => (window.openBooking ? window.openBooking() : openSheet());
   // 뒷면 이미지 프리로드
   const pre = new Image();
   pre.src = ASSET + "back.webp";

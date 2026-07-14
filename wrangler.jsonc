@@ -1,0 +1,16 @@
+/* 묘연 — Cloudflare Workers 설정 (정적 에셋 app/ + 예약 API worker/)
+   ⚠️ D1 연결 전까지 d1_databases는 주석 유지:
+      배포는 성공하고 랜딩은 정상 동작, 예약 API만 503 → 프론트가 인스타 DM 안내로 폴백.
+   D1 생성 후: 아래 주석을 해제하고 database_id를 기입 (절차: planning/08_예약체계.md §7) */
+{
+  "name": "myoyeon",
+  "compatibility_date": "2026-06-01",
+  "main": "worker/index.js",
+  "assets": {
+    "directory": "app",
+    "binding": "ASSETS"
+  }
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "myoyeon-db", "database_id": "D1-생성-후-여기에-id" }
+  // ]
+}

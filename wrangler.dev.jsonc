@@ -1,0 +1,17 @@
+/* 로컬 개발 전용 — npx wrangler dev -c wrangler.dev.jsonc --port 8788
+   로컬 D1(.wrangler/state에 저장)과 개발용 비밀번호 포함. 배포에는 사용하지 않는다. */
+{
+  "name": "myoyeon",
+  "compatibility_date": "2026-06-01",
+  "main": "worker/index.js",
+  "assets": {
+    "directory": "app",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "myoyeon-db", "database_id": "local-dev-only" }
+  ],
+  "vars": {
+    "ADMIN_PASSWORD": "myoyeon-dev-1234"
+  }
+}
