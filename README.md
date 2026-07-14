@@ -6,6 +6,10 @@
 
 메타 CTA 광고 → 랜딩페이지(오늘의 운세 뽑기) → ① 타로리딩 예약(주 전환) ② 인스타 팔로우(보조 전환) ③ 스토리 공유(바이럴 루프)
 
+## 라이브 URL
+
+**https://myoyeon.capshinsmg.workers.dev/** — Cloudflare Workers(GitHub 연동), main 브랜치 push마다 자동 재배포
+
 ## 진행 로드맵
 
 | 단계 | 내용 | 상태 | 산출물 |
@@ -16,7 +20,7 @@
 | 04 | 프로필 제작 | ✅ 완료 (2026-07-14) — 이미지·바이오 확정 | [planning/04_프로필.md](planning/04_프로필.md) · [프로필 이미지](design/profile/myoyeon_profile.png) |
 | 05 | 메인 캐릭터 선정 | ✅ 완료 (2026-07-14) — **묘연이** | [planning/05_메인캐릭터.md](planning/05_메인캐릭터.md) · [최종 이미지](design/character/myoyeon_main.png) |
 | 06 | 타로카드 리디자인 | ✅ 완료 (2026-07-14) — 메이저 22장 + 뒷면 | [planning/06_타로카드.md](planning/06_타로카드.md) · [design/cards/](design/cards/) |
-| 07 | 랜딩페이지 제작 | ✅ v1 완료 (2026-07-14) — 배포는 CF Pages 연동 대기 | [planning/07_랜딩페이지.md](planning/07_랜딩페이지.md) · [app/](app/) |
+| 07 | 랜딩페이지 제작 | ✅ 완료 (2026-07-14) — 배포 라이브 | [planning/07_랜딩페이지.md](planning/07_랜딩페이지.md) · [app/](app/) · [라이브 사이트](https://myoyeon.capshinsmg.workers.dev/) |
 | 08 | 예약체계 + 관리자탭 제작 | ▶ 다음 | |
 | 09 | 인스타 ↔ 랜딩 동기화 | ⬜ | |
 | 10 | 피드 컨텐츠 기획 | ⬜ | |
