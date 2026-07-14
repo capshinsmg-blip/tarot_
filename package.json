@@ -1,0 +1,24 @@
+{
+  "name": "tarot",
+  "version": "1.0.0",
+  "description": "\"오늘의 운세 타로카드 뽑기\" 랜딩페이지 + 메타 CTA 광고로 타로리딩 예약을 만드는 프로젝트.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/capshinsmg-blip/tarot_.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/capshinsmg-blip/tarot_/issues"
+  },
+  "homepage": "https://github.com/capshinsmg-blip/tarot_#readme",
+  "dependencies": {
+    "puppeteer": "^25.3.0"
+  }
+}

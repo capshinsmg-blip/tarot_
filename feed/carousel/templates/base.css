@@ -1,0 +1,63 @@
+/* 묘연 타로 도감 — 슬라이드 공통 디자인 토큰
+   팔레트(planning/03 확정): navy #1A1F3D · deep #10142B · gold #E9B96E · lilac #A99BD6 · cream #F6EFE3
+   캔버스: 1080×1350 (4:5). 배경 이미지는 assets/bg/ (힉스필드 생성). */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1080px; height: 1350px;
+  overflow: hidden; position: relative;
+  background: #10142B center / cover no-repeat;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  color: #F6EFE3;
+  word-break: keep-all;
+}
+/* CSS의 url()은 이 파일(templates/) 기준 상대경로 */
+body.bg-text  { background-image: url('../assets/bg/bg_text.png'); }  /* 본문(2~6) */
+body.bg-cover { background-image: url('../assets/bg/bg_cover.png'); } /* 커버(1)·CTA(7) */
+
+.serif { font-family: 'Gowun Batang', serif; }
+
+/* ── 공통 요소 ── */
+.label { /* 상단 작은 라벨: 시리즈명·카테고리 */
+  font-size: 26px; font-weight: 600; letter-spacing: 0.28em;
+  color: #E9B96E; text-align: center;
+}
+.headline { /* 메인 카피 — 명조 */
+  font-family: 'Gowun Batang', serif;
+  font-size: 62px; font-weight: 700; line-height: 1.5;
+  color: #F6EFE3; text-align: center;
+}
+.headline .gold { color: #E9B96E; }
+.sub { /* 보조 문장 */
+  font-size: 30px; font-weight: 400; line-height: 1.75;
+  color: rgba(246, 239, 227, 0.78); text-align: center;
+}
+.lilac { color: #A99BD6; }
+
+.kw-chip {
+  display: inline-block;
+  border: 1.5px solid rgba(169, 155, 214, 0.55);
+  background: rgba(169, 155, 214, 0.12);
+  color: #C9BFE8;
+  font-size: 28px; font-weight: 600;
+  padding: 14px 34px; border-radius: 999px;
+}
+
+.divider { /* 골드 단선 앵커 */
+  width: 72px; height: 3px; background: #E9B96E; margin: 0 auto; border-radius: 2px;
+}
+
+.card-art { /* 카드 아트 공통 그림자 */
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 70px rgba(233, 185, 110, 0.22);
+}
+
+.page-dot { /* 하단 페이지 표시 */
+  position: absolute; bottom: 52px; left: 0; right: 0;
+  text-align: center; font-size: 22px; letter-spacing: 0.22em;
+  color: rgba(246, 239, 227, 0.38);
+}
