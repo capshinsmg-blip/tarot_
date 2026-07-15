@@ -6,10 +6,14 @@
 
 ## 1. 소재 (이미지)
 
-- **파일**: [poster_v1.png](poster_v1.png) — 1080×1350 (4:5, 모바일 피드에서 세로 면적 최대)
-- 재렌더: `node feed/ads/render.js poster_v1`
-- 정사각(1:1) 변형이 필요하면: `node feed/ads/render.js poster_v1 1080 1080` (배치 전 여백 재확인)
-- 스토리/릴스(9:16)용은 별도 소재 권장 — 필요 시 요청
+| 파일 | 크기 | 지면 |
+|---|---|---|
+| [poster_v1.png](poster_v1.png) | 1080×1350 (4:5) | 피드 (세로 면적 최대) |
+| [poster_v1_9x16.png](poster_v1_9x16.png) | 1080×1920 (9:16) | 스토리 · 릴스 |
+
+- 재렌더: `node feed/ads/render.js poster_v1` / `node feed/ads/render.js poster_v1_9x16 1080 1920`
+- 정사각(1:1)이 필요하면: `node feed/ads/render.js poster_v1 1080 1080` (배치 전 여백 재확인)
+- **스토리/릴스 배치 주의**: 위·아래 약 250px는 인스타 UI(프로필·답장 바)가 덮으므로, 9:16 소재는 핵심을 가운데 밴드에 배치해 뒀다. Advantage+ 자동 배치 시 4:5 소재가 스토리에 크롭돼 들어가는 것보다 이 전용 9:16을 넣는 편이 안전.
 
 ## 2. 광고 매니저에 넣을 텍스트 (복붙용)
 

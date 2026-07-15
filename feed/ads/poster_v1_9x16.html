@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../carousel/templates/base.css">
+<style>
+  /* 9:16 스토리/릴스 — 브랜드 그라디언트로 풀필(4:5 프레임 이미지는 크롭되므로 미사용) */
+  body {
+    width: 1080px; height: 1920px;
+    background: radial-gradient(125% 80% at 50% 8%, #1F2547 0%, #141A34 45%, #0C0F22 100%);
+  }
+  /* 얇은 골드 인셋 프레임 */
+  .frame {
+    position: absolute; inset: 46px;
+    border: 2px solid rgba(233,185,110,0.5);
+    border-radius: 26px;
+    box-shadow: inset 0 0 60px rgba(233,185,110,0.06);
+  }
+  .frame::before {
+    content: ""; position: absolute; inset: 12px;
+    border: 1px solid rgba(233,185,110,0.22); border-radius: 18px;
+  }
+  /* 상단 달빛 글로우 */
+  .moonglow {
+    position: absolute; top: 150px; left: 50%; transform: translateX(-50%);
+    width: 620px; height: 620px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(233,185,110,0.16), transparent 72%);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <div class="moonglow"></div>
+
+  <!-- 스토리 안전영역: 위/아래 UI를 피해 핵심을 가운데 밴드에 배치 -->
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:250px 110px;gap:46px">
+
+    <!-- 무료 배지 -->
+    <div style="display:inline-flex;align-items:center;gap:14px;border:1.5px solid rgba(233,185,110,0.55);background:rgba(233,185,110,0.1);color:#E9B96E;font-size:29px;font-weight:600;letter-spacing:0.04em;padding:15px 34px;border-radius:999px">
+      무료 · 회원가입 없이 · 30초
+    </div>
+
+    <!-- 카드 히어로: 뒷면 2장 + 태양 리빌 -->
+    <div style="display:flex;justify-content:center;align-items:flex-end;height:470px;margin:6px 0">
+      <img class="card-art" src="../../app/assets/cards/back.webp" style="width:236px;transform:rotate(-15deg) translateY(28px);position:relative;z-index:1" alt="타로 카드 뒷면">
+      <img class="card-art" src="../../design/cards/major/19_sun.png" style="width:272px;margin:0 -40px;position:relative;z-index:3;box-shadow:0 30px 80px rgba(0,0,0,0.55),0 0 90px rgba(233,185,110,0.42)" alt="타로 카드">
+      <img class="card-art" src="../../app/assets/cards/back.webp" style="width:236px;transform:rotate(15deg) translateY(28px);position:relative;z-index:1" alt="타로 카드 뒷면">
+    </div>
+
+    <!-- 헤드라인 -->
+    <div class="serif" style="font-size:74px;font-weight:700;line-height:1.4;text-align:center;color:#F6EFE3">
+      오늘의 카드 한 장,<br><span style="color:#E9B96E">무료로</span> 뽑아보세요
+    </div>
+
+    <!-- 보조문 -->
+    <div class="sub" style="font-size:34px;max-width:860px">자정의 공방에서 묘연이가 고른 오늘의 운세<br>연애 · 금전 · 일, 오늘의 흐름을 확인해요</div>
+
+    <!-- CTA 버튼 (디자인 장치) -->
+    <div style="display:inline-flex;align-items:center;gap:16px;background:#E9B96E;color:#10142B;font-size:44px;font-weight:700;padding:30px 66px;border-radius:999px;box-shadow:0 14px 44px rgba(233,185,110,0.4);margin-top:10px">
+      무료로 카드 뽑기 <span style="font-size:40px">→</span>
+    </div>
+
+    <!-- 하단 지역·핸들 -->
+    <div style="display:flex;align-items:center;gap:16px;margin-top:14px">
+      <img src="../../app/assets/character/myoyeon_profile.png" style="width:62px;height:62px;border-radius:50%;border:2px solid rgba(233,185,110,0.45)" alt="묘연이">
+      <div style="font-size:31px;color:rgba(246,239,227,0.82);font-weight:500">안산 타로공방 <b style="color:#E9B96E">묘연</b> · @myoyeon.tarot</div>
+    </div>
+
+  </div>
+</body>
+</html>
