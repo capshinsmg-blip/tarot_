@@ -1,0 +1,11 @@
+{
+  "name": "reel01_r2",
+  "format": "R2 카드 한 장 뽑고 가세요 (1주차 수요일)",
+  "clips": ["bank/B5_cardfan.mp4", "bank/B3_handcard_cta.mp4"],
+  "out_duration": 9.2,
+  "subs": [
+    { "from": 0, "to": 2.2, "style": "hook", "text": "카드 한 장<br>뽑고 가세요 🌙" },
+    { "from": 2.2, "to": 4.9, "style": "body", "text": "마음이 가는 카드를<br>직관으로 골라보세요" },
+    { "from": 5.0, "to": 30, "style": "cta", "text": "고른 카드의 답은<br><b>프로필 링크</b>에서 무료로 🌙", "handle": true }
+  ]
+}

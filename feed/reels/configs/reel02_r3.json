@@ -1,0 +1,11 @@
+{
+  "name": "reel02_r3",
+  "format": "R3 자정의 공방 무드 (1주차 토요일)",
+  "clips": ["bank/B4_workshop_mood.mp4", "bank/B3_handcard_cta.mp4"],
+  "out_duration": 10.2,
+  "subs": [
+    { "from": 0, "to": 2.5, "style": "hook", "text": "자정의 공방에<br>초대할게요 🕯️" },
+    { "from": 2.5, "to": 5.8, "style": "body", "text": "오늘의 운세,<br>묘연이가 골라뒀어요" },
+    { "from": 6.0, "to": 30, "style": "cta", "text": "오늘의 카드는<br><b>프로필 링크</b>에서 무료로 🌙", "handle": true }
+  ]
+}
