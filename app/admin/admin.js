@@ -15,7 +15,7 @@ const CAT_KO = { love: "💘 연애", money: "💰 금전", work: "💼 일·성
 const $id = (s) => document.getElementById(s);
 
 let resScope = "pending";
-let slotData = { today: "", slots: [] }; // GET /api/admin/slots 응답 (현재 2주 창)
+let slotData = { today: "", closed: [], booked: [] }; // GET /api/admin/slots 응답 (현재 2주 창)
 let selDate = "";
 let baseToday = "";     // 서버 기준 오늘 (KST)
 let rangeOffset = 0;    // 시간표 창 시작 오프셋 (0·14·28·42 — 최대 8주)
@@ -202,10 +202,11 @@ function renderSlotDates(winStart) {
   wrap.innerHTML = "";
   for (let i = 0; i < 14; i++) {
     const d = addDaysStr(winStart, i);
-    const openCnt = slotData.slots.filter((s) => s.date === d).length;
+    const closedCnt = slotData.closed.filter((s) => s.date === d).length;
+    const openCnt = TIMES.length - closedCnt;
     const btn = document.createElement("button");
     btn.className = "chip" + (d === selDate ? " on" : "");
-    btn.innerHTML = `${fmtMD(d)} ${d === baseToday ? "오늘" : dowOf(d)}<small>${openCnt ? openCnt + "칸 열림" : "닫힘"}</small>`;
+    btn.innerHTML = `${fmtMD(d)} ${d === baseToday ? "오늘" : dowOf(d)}<small>${openCnt <= 0 ? "닫힘" : closedCnt === 0 ? "전체 열림" : openCnt + "칸 열림"}</small>`;
     btn.onclick = () => { selDate = d; renderSlotDates(winStart); renderSlotGrid(); };
     wrap.appendChild(btn);
   }
@@ -213,21 +214,23 @@ function renderSlotDates(winStart) {
 function renderSlotGrid() {
   const grid = $id("slot-grid");
   grid.innerHTML = "";
-  const daySlots = {};
-  slotData.slots.filter((s) => s.date === selDate).forEach((s) => { daySlots[s.time] = s; });
+  // 기본 전체 열림 — closed(블록리스트)에 있는 칸만 닫힘
+  const closedSet = new Set(slotData.closed.filter((s) => s.date === selDate).map((s) => s.time));
+  const bookedMap = {};
+  slotData.booked.filter((s) => s.date === selDate).forEach((s) => { bookedMap[s.time] = s; });
 
   TIMES.forEach((t) => {
-    const s = daySlots[t];
+    const bk = bookedMap[t];
     const btn = document.createElement("button");
-    if (s && s.res_id) {
+    if (bk) {
       btn.className = "slot booked";
-      btn.innerHTML = `${t}<small>${esc(s.res_name)}${s.res_status === "pending" ? " (대기)" : ""}</small>`;
-      btn.onclick = () => toast(`${esc(s.res_name)}님 예약이 있어요. 닫으려면 예약 탭에서 먼저 취소해 주세요.`);
+      btn.innerHTML = `${t}<small>${esc(bk.res_name)}${bk.res_status === "pending" ? " (대기)" : ""}</small>`;
+      btn.onclick = () => toast(`${esc(bk.res_name)}님 예약이 있어요. 닫으려면 예약 탭에서 먼저 취소해 주세요.`);
     } else {
-      const isOpen = !!s;
-      btn.className = "slot" + (isOpen ? " open" : "");
+      const isClosed = closedSet.has(t);
+      btn.className = "slot" + (isClosed ? "" : " open");
       btn.textContent = t;
-      btn.onclick = () => toggleSlots([t], !isOpen);
+      btn.onclick = () => toggleSlots([t], isClosed); // 닫힌 칸 탭=열기 · 열린 칸 탭=닫기
     }
     grid.appendChild(btn);
   });
@@ -318,9 +321,9 @@ $id("btn-logout").onclick = async () => {
 $id("btn-prev-w").onclick = () => { rangeOffset = Math.max(0, rangeOffset - 14); selDate = ""; loadSlots(); };
 $id("btn-next-w").onclick = () => { rangeOffset = Math.min(42, rangeOffset + 14); selDate = ""; loadSlots(); };
 $id("btn-open-all").onclick = () => {
-  const openTimes = new Set(slotData.slots.filter((s) => s.date === selDate).map((s) => s.time));
-  const toOpen = TIMES.filter((t) => !openTimes.has(t));
-  if (toOpen.length) toggleSlots(toOpen, true);
+  const closedTimes = slotData.closed.filter((s) => s.date === selDate).map((s) => s.time);
+  if (closedTimes.length) toggleSlots(closedTimes, true);
+  else toast("이미 전체 열림이에요 🌙");
 };
 $id("btn-close-all").onclick = () => {
   if (confirm(`${fmtMD(selDate)}(${dowOf(selDate)}) 시간을 모두 닫을까요? (예약된 칸은 유지돼요)`)) toggleSlots(TIMES, false);

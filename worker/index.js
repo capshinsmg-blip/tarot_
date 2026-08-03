@@ -13,6 +13,12 @@ const ADMIN_DAYS_AHEAD = 56;     // 관리자 시간표 관리 범위 (8주 — 
 const COOKIE = "myo_admin";
 const CAT_KO = { love: "💘 연애", money: "💰 금전", work: "💼 일·성장", overall: "✨ 총운" };
 
+/* 기본 영업 그리드: 10:00 ~ 21:30, 30분 간격 — 모든 칸이 기본 '열림'.
+   관리자가 닫은 칸만 closed_slots(블록리스트)에 기록된다. */
+const GRID_TIMES = [];
+for (let m = 10 * 60; m < 22 * 60; m += 30)
+  GRID_TIMES.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+
 class ApiError extends Error {
   constructor(status, code, message) { super(message); this.status = status; this.code = code; }
 }
@@ -93,6 +99,10 @@ async function ensureSchema(env) {
     env.DB.prepare(`CREATE INDEX IF NOT EXISTS ix_events_date ON events(date, name)`),
     env.DB.prepare(`CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY, value TEXT NOT NULL)`),
+    env.DB.prepare(`CREATE TABLE IF NOT EXISTS closed_slots (
+      date TEXT NOT NULL, time TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (date, time))`),
   ]);
   // v2 마이그레이션: 담당 타로사 · 텔레그램 메시지 (이미 있으면 duplicate 에러 → 무시)
   // v3 (9단계): source — 유입 경로 (instagram/bio, meta/paid …)
@@ -162,18 +172,29 @@ async function apiEvent(req, env) {
   return json({ ok: true });
 }
 
-/* ── 공개: 예약 가능 슬롯 ── */
+/* ── 공개: 예약 가능 슬롯 (기본 전체 열림 − 닫힘 블록리스트 − 예약됨 − 마감) ── */
 async function apiSlots(env) {
   const today = kstParts().date;
   const end = addDays(today, DAYS_AHEAD - 1);
-  const rs = await env.DB.prepare(
-    `SELECT s.id, s.date, s.time FROM slots s
-     WHERE s.date BETWEEN ?1 AND ?2
-       AND NOT EXISTS (SELECT 1 FROM reservations r WHERE r.slot_id = s.id AND r.status IN ${ACTIVE})
-     ORDER BY s.date, s.time`
+  const closed = await env.DB.prepare(
+    "SELECT date, time FROM closed_slots WHERE date BETWEEN ?1 AND ?2"
   ).bind(today, end).all();
+  const booked = await env.DB.prepare(
+    `SELECT s.date, s.time FROM slots s
+     JOIN reservations r ON r.slot_id = s.id AND r.status IN ${ACTIVE}
+     WHERE s.date BETWEEN ?1 AND ?2`
+  ).bind(today, end).all();
+  const block = new Set([...closed.results, ...booked.results].map((x) => `${x.date} ${x.time}`));
   const minEpoch = Date.now() + BOOK_LEAD_MIN * 60000;
-  const slots = rs.results.filter((s) => slotEpoch(s.date, s.time) >= minEpoch);
+  const slots = [];
+  for (let i = 0; i < DAYS_AHEAD; i++) {
+    const d = addDays(today, i);
+    for (const t of GRID_TIMES) {
+      if (block.has(`${d} ${t}`)) continue;
+      if (slotEpoch(d, t) < minEpoch) continue;
+      slots.push({ date: d, time: t });
+    }
+  }
   return json({ ok: true, today, slots });
 }
 
@@ -187,19 +208,31 @@ async function apiCreateReservation(req, env, ctx) {
   const note = String(b.note || "").trim().slice(0, 200);
   const category = CATEGORIES.has(b.category) ? b.category : "";
   const source = normSource(b.source);
-  const slotId = Number(b.slot_id);
 
   if (!name || name.length > 20) throw new ApiError(400, "bad_name", "이름을 1~20자로 입력해 주세요.");
   if (!phone) throw new ApiError(400, "bad_phone", "연락처를 확인해 주세요. (예: 010-1234-5678)");
   if (b.consent !== true) throw new ApiError(400, "consent_required", "개인정보 수집 동의가 필요해요.");
-  if (!Number.isInteger(slotId) || slotId <= 0) throw new ApiError(400, "bad_slot", "예약 시간을 선택해 주세요.");
 
-  const slot = await env.DB.prepare("SELECT id, date, time FROM slots WHERE id = ?1").bind(slotId).first();
-  if (!slot) throw new ApiError(409, "slot_gone", "그 시간이 방금 마감됐어요. 다른 시간을 골라주세요.");
-  if (slotEpoch(slot.date, slot.time) < Date.now() + BOOK_LEAD_MIN * 60000)
-    throw new ApiError(409, "slot_closed", "그 시간은 신청이 마감됐어요. 다른 시간을 골라주세요.");
-
+  // 신청 시간: {date, time} 기반 (구버전 캐시 프론트의 slot_id도 허용)
+  let date = String(b.date || "");
+  let time = String(b.time || "");
+  const legacyId = Number(b.slot_id);
+  if ((!date || !time) && Number.isInteger(legacyId) && legacyId > 0) {
+    const legacy = await env.DB.prepare("SELECT date, time FROM slots WHERE id = ?1").bind(legacyId).first();
+    if (legacy) { date = legacy.date; time = legacy.time; }
+  }
   const today = kstParts().date;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !GRID_TIMES.includes(time))
+    throw new ApiError(400, "bad_slot", "예약 시간을 선택해 주세요.");
+  if (date < today || date > addDays(today, DAYS_AHEAD - 1))
+    throw new ApiError(409, "slot_closed", "그 날짜는 아직 예약이 열리지 않았어요. 다른 날짜를 골라주세요.");
+  if (slotEpoch(date, time) < Date.now() + BOOK_LEAD_MIN * 60000)
+    throw new ApiError(409, "slot_closed", "그 시간은 신청이 마감됐어요. 다른 시간을 골라주세요.");
+  const isClosed = await env.DB.prepare(
+    "SELECT 1 AS x FROM closed_slots WHERE date = ?1 AND time = ?2"
+  ).bind(date, time).first();
+  if (isClosed) throw new ApiError(409, "slot_closed", "그 시간은 예약을 받지 않아요. 다른 시간을 골라주세요.");
+
   const dup = await env.DB.prepare(
     `SELECT COUNT(*) AS c FROM reservations r JOIN slots s ON s.id = r.slot_id
      WHERE r.phone = ?1 AND r.status IN ${ACTIVE} AND s.date >= ?2`
@@ -207,11 +240,16 @@ async function apiCreateReservation(req, env, ctx) {
   if (dup.c >= MAX_ACTIVE_PER_PHONE)
     throw new ApiError(409, "too_many", "확인 대기 중인 예약이 이미 있어요. 확정 안내 후 다시 신청해 주세요.");
 
+  // 슬롯 앵커 확보 (없으면 생성) — 더블부킹은 예약 테이블의 부분 유니크 인덱스가 막는다
+  await env.DB.prepare("INSERT OR IGNORE INTO slots (date, time) VALUES (?1, ?2)").bind(date, time).run();
+  const slot = await env.DB.prepare("SELECT id, date, time FROM slots WHERE date = ?1 AND time = ?2").bind(date, time).first();
+  if (!slot) throw new ApiError(500, "internal", "잠시 후 다시 시도해 주세요.");
+
   let id;
   try {
     const r = await env.DB.prepare(
       "INSERT INTO reservations (slot_id, name, phone, note, category, source) VALUES (?1, ?2, ?3, ?4, ?5, ?6)"
-    ).bind(slotId, name, phone, note, category, source).run();
+    ).bind(slot.id, name, phone, note, category, source).run();
     id = r.meta.last_row_id;
   } catch (e) {
     if (String(e).includes("UNIQUE")) throw new ApiError(409, "slot_taken", "아쉽지만 방금 다른 분이 그 시간을 신청했어요. 다른 시간을 골라주세요.");
@@ -325,14 +363,17 @@ async function adminListSlots(env, url) {
   if (from > maxStart) from = maxStart;
   const days = Math.min(Math.max(parseInt(url.searchParams.get("days") || "14", 10) || 14, 1), 31);
   const end = addDays(from, days - 1);
-  const rs = await env.DB.prepare(
-    `SELECT s.id, s.date, s.time, r.id AS res_id, r.name AS res_name, r.status AS res_status
+  const closed = await env.DB.prepare(
+    "SELECT date, time FROM closed_slots WHERE date BETWEEN ?1 AND ?2 ORDER BY date, time"
+  ).bind(from, end).all();
+  const booked = await env.DB.prepare(
+    `SELECT s.date, s.time, r.id AS res_id, r.name AS res_name, r.status AS res_status
      FROM slots s
-     LEFT JOIN reservations r ON r.slot_id = s.id AND r.status IN ${ACTIVE}
+     JOIN reservations r ON r.slot_id = s.id AND r.status IN ${ACTIVE}
      WHERE s.date BETWEEN ?1 AND ?2
      ORDER BY s.date, s.time`
   ).bind(from, end).all();
-  return json({ ok: true, today, from, end, slots: rs.results });
+  return json({ ok: true, today, from, end, grid: GRID_TIMES, closed: closed.results, booked: booked.results });
 }
 
 /* ── 관리자: 슬롯 열기/닫기 (일괄) ── */
@@ -347,24 +388,28 @@ async function adminToggleSlots(req, env) {
   if (!times.length || times.some((t) => !/^([01]\d|2[0-3]):[0-5]\d$/.test(t)))
     throw new ApiError(400, "bad_times", "시간 형식이 올바르지 않아요.");
 
+  const ph = times.map((_, i) => `?${i + 2}`).join(",");
   if (open) {
-    await env.DB.batch(times.map((t) =>
-      env.DB.prepare("INSERT OR IGNORE INTO slots (date, time) VALUES (?1, ?2)").bind(date, t)
-    ));
+    // 열기 = 닫힘 블록리스트에서 제거 (기본이 열림)
+    await env.DB.prepare(
+      `DELETE FROM closed_slots WHERE date = ?1 AND time IN (${ph})`
+    ).bind(date, ...times).run();
     return json({ ok: true, opened: times.length });
   }
-  // 닫기: 활성 예약이 잡힌 슬롯은 보호
-  const ph = times.map((_, i) => `?${i + 2}`).join(",");
-  const locked = await env.DB.prepare(
-    `SELECT COUNT(*) AS c FROM slots s
+  // 닫기 = 블록리스트에 추가. 활성 예약이 잡힌 칸은 건너뛰고 개수 보고
+  const lockedRows = await env.DB.prepare(
+    `SELECT s.time FROM slots s
      JOIN reservations r ON r.slot_id = s.id AND r.status IN ${ACTIVE}
      WHERE s.date = ?1 AND s.time IN (${ph})`
-  ).bind(date, ...times).first();
-  await env.DB.prepare(
-    `DELETE FROM slots WHERE date = ?1 AND time IN (${ph})
-     AND NOT EXISTS (SELECT 1 FROM reservations r WHERE r.slot_id = slots.id AND r.status IN ${ACTIVE})`
-  ).bind(date, ...times).run();
-  return json({ ok: true, locked: locked.c });
+  ).bind(date, ...times).all();
+  const lockedSet = new Set(lockedRows.results.map((x) => x.time));
+  const toClose = times.filter((t) => !lockedSet.has(t));
+  if (toClose.length) {
+    await env.DB.batch(toClose.map((t) =>
+      env.DB.prepare("INSERT OR IGNORE INTO closed_slots (date, time) VALUES (?1, ?2)").bind(date, t)
+    ));
+  }
+  return json({ ok: true, closed: toClose.length, locked: lockedSet.size });
 }
 
 /* ── 관리자: 통계 (예약 현황 + 퍼널) ── */

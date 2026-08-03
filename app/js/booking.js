@@ -18,9 +18,9 @@
   };
   const DOW = ["일", "월", "화", "수", "목", "금", "토"];
 
-  let slots = [];                       // [{id,date,time}] 서버 기준 예약 가능 슬롯
+  let slots = [];                       // [{date,time}] 서버 기준 예약 가능 슬롯
   let today = "";
-  let sel = { date: null, slotId: null, time: null };
+  let sel = { date: null, time: null };
   let dim = null, sheet = null, errTimer = null;
 
   /* ── 퍼널 로깅: 픽셀 스텁(track) 호출에 얹어 D1에도 적재 ── */
@@ -62,7 +62,7 @@
   function openBooking() {
     if (typeof window.track === "function") window.track("InitiateCheckout", { content_name: "tarot_reading" });
     closeSheet();
-    sel = { date: null, slotId: null, time: null };
+    sel = { date: null, time: null };
 
     dim = document.createElement("div");
     dim.id = "sheet-dim";
@@ -204,7 +204,7 @@
       btn.disabled = !countByDate[d];
       btn.innerHTML = `${fmtMD(d)}<small>${i === 0 ? "오늘" : i === 1 ? "내일" : dowOf(d) + "요일"}</small>`;
       btn.onclick = () => {
-        sel = { date: d, slotId: null, time: null };
+        sel = { date: d, time: null };
         [...wrap.children].forEach((c) => c.classList.remove("sel"));
         btn.classList.add("sel");
         $id("bk-next2").disabled = true;
@@ -224,7 +224,6 @@
       btn.className = "bk-time";
       btn.textContent = s.time;
       btn.onclick = () => {
-        sel.slotId = s.id;
         sel.time = s.time;
         [...wrap.children].forEach((c) => c.classList.remove("sel"));
         btn.classList.add("sel");
@@ -250,7 +249,7 @@
     const name = $id("bk-name").value.trim();
     const phone = $id("bk-phone").value.trim();
     const note = $id("bk-note").value.trim();
-    if (!sel.slotId) { showStep(2); return; }
+    if (!sel.date || !sel.time) { showStep(2); return; }
     if (!name) return showErr("이름을 입력해 주세요.");
     if (!/^01[016789]-?\d{3,4}-?\d{4}$/.test(phone.replace(/\s/g, ""))) return showErr("연락처를 확인해 주세요. (예: 010-1234-5678)");
     if (!$id("bk-consent").checked) return showErr("개인정보 수집 동의에 체크해 주세요.");
@@ -263,7 +262,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slot_id: sel.slotId, name, phone, note,
+          date: sel.date, time: sel.time, name, phone, note,
           category: savedCat(), consent: true,
           source: (window.getSource && window.getSource()) || "", // 유입 경로 (9단계)
           website: $id("bk-web").value, // 허니팟
