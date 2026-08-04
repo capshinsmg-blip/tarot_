@@ -89,6 +89,8 @@
   https://myoyeon.capshinsmg.workers.dev/?utm_source=meta&utm_medium=paid&utm_campaign=daily_tarot&utm_content=poster_v1
   ```
 
+- **파트너십 광고 토글**: **끔 (기본값 유지)** — 인플루언서·크리에이터 협업 게시물을 광고로 돌릴 때만 쓰는 기능 (상대 계정의 허용 코드 필요). 자체 소재 광고엔 해당 없음. 나중에 지역 인플루언서 후기 콘텐츠를 광고로 밀 때 켠다.
+
 → **게시** 클릭.
 
 ## 4. 발행 후
