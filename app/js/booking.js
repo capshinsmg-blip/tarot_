@@ -38,9 +38,58 @@
     const orig = window.track;
     if (typeof orig === "function") {
       const MAP = { draw_start: "draw_start", ViewContent: "result_view", InitiateCheckout: "booking_open", Schedule: "booking_submit", share_save: "share_save" };
-      window.track = (n, p) => { orig(n, p); if (MAP[n]) logEvent(MAP[n]); };
+      window.track = (n, p) => {
+        orig(n, p);
+        if (MAP[n]) logEvent(MAP[n]);
+        if (n === "ViewContent") scheduleEventPopup(); // 결과 확인 → 잠시 후 오픈 이벤트 팝업
+      };
     }
   });
+
+  /* ── 오픈 이벤트 팝업 (결과 확인 후 예약 후킹 — 하루 1회) ── */
+  const EVPOP_KEY = "myoyeon_evpop_v1";
+  let evpopTimer = null;
+
+  function evpopToday() {
+    return (typeof todayStr === "function") ? todayStr() : new Date().toDateString();
+  }
+  function evpopShownToday() {
+    try { return localStorage.getItem(EVPOP_KEY) === evpopToday(); } catch (e) { return false; }
+  }
+  function scheduleEventPopup() {
+    if (evpopTimer || evpopShownToday()) return;
+    evpopTimer = setTimeout(showEventPopup, 3200);
+  }
+  function showEventPopup() {
+    evpopTimer = null;
+    if (evpopShownToday()) return;
+    if (dim || sheet) return;                              // 예약 시트가 열려 있으면 방해하지 않는다
+    if (document.getElementById("share-modal")) return;    // 공유 모달 중에도 금지
+    const s4 = document.getElementById("s4");
+    if (!s4 || !s4.classList.contains("active")) return;   // 결과 화면에서만
+    try { localStorage.setItem(EVPOP_KEY, evpopToday()); } catch (e) { /* 무시 */ }
+    logEvent("popup_view");
+
+    const pd = document.createElement("div");
+    pd.id = "evpop-dim";
+    const pop = document.createElement("div");
+    pop.id = "evpop";
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-label", "오픈 기념 이벤트");
+    pop.innerHTML = `
+      <img class="evpop-cat" src="assets/character/myoyeon_main.png" alt="묘연이">
+      <div class="evpop-badge">🎉 오픈 기념 이벤트</div>
+      <div class="evpop-title serif">1:1 타로리딩<br><span class="evpop-price">단돈 5,000원</span></div>
+      <p class="evpop-sub">오늘 뽑은 카드 이야기,<br>공방에서 30분 동안 깊이 들어봐요</p>
+      <button class="btn-primary" id="evpop-book">지금 예약하기 🌙</button>
+      <button class="evpop-later" id="evpop-later">오늘은 괜찮아요</button>`;
+    document.body.append(pd, pop);
+
+    const close = () => { pd.remove(); pop.remove(); };
+    pd.onclick = close;
+    $id("evpop-later").onclick = close;
+    $id("evpop-book").onclick = () => { logEvent("popup_click"); close(); openBooking(); };
+  }
 
   /* ── 유틸 ── */
   function savedCat() {

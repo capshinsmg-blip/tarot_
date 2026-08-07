@@ -4,7 +4,7 @@
    스키마는 첫 요청 시 자동 생성 (worker/schema.sql은 참고용) */
 
 const ACTIVE = "('pending','approved')"; // 슬롯을 점유하는 예약 상태
-const EVENT_NAMES = new Set(["page_view", "draw_start", "result_view", "booking_open", "booking_submit", "share_save"]);
+const EVENT_NAMES = new Set(["page_view", "draw_start", "result_view", "booking_open", "booking_submit", "share_save", "popup_view", "popup_click"]);
 const CATEGORIES = new Set(["love", "money", "work", "overall"]);
 const BOOK_LEAD_MIN = 60;        // 슬롯 시작 60분 전까지만 신청 가능
 const MAX_ACTIVE_PER_PHONE = 2;  // 전화번호당 활성 예약 상한 (스팸 방지)
