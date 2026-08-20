@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../carousel/templates/base.css">
+<style>
+  /* v3 — 역동 묘연이 풀블리드 히어로 (힉스필드 생성) + 상단 고정 후킹 워딩
+     인스타 CTA 트렌드: 풀블리드 이미지 · 오버사이즈 타이포 · 마커 하이라이트 가격 · 큰 알약 CTA */
+  body { width: 1080px; height: 1350px; background: #10142B; }
+  .hero {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .scrim-top {
+    position: absolute; left: 0; right: 0; top: 0; height: 430px;
+    background: linear-gradient(to bottom, rgba(10,13,28,0.92) 0%, rgba(10,13,28,0.55) 55%, transparent 100%);
+  }
+  .scrim-bottom {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 420px;
+    background: linear-gradient(to top, rgba(10,13,28,0.95) 0%, rgba(10,13,28,0.6) 55%, transparent 100%);
+  }
+  .price-mark {
+    display: inline-block;
+    background: linear-gradient(175deg, #F2C57F 0%, #E9B96E 100%);
+    color: #10142B;
+    border-radius: 22px;
+    padding: 2px 34px 10px;
+    box-shadow: 0 14px 44px rgba(233,185,110,0.45);
+    transform: rotate(-1.2deg);
+  }
+</style>
+</head>
+<body>
+  <img class="hero" src="assets/myoyeon_dynamic.png" alt="점프하는 묘연이">
+  <div class="scrim-top"></div>
+  <div class="scrim-bottom"></div>
+
+  <!-- 상단 고정 후킹 -->
+  <div style="position:absolute;left:0;right:0;top:58px;display:flex;flex-direction:column;align-items:center;gap:20px">
+    <div style="display:inline-flex;align-items:center;gap:12px;border:1.5px solid rgba(233,185,110,0.65);background:rgba(233,185,110,0.14);color:#E9B96E;font-size:28px;font-weight:700;letter-spacing:0.04em;padding:13px 30px;border-radius:999px">
+      🎉 오픈 기념 · 안산 오프라인
+    </div>
+    <div class="serif" style="font-size:76px;font-weight:700;color:#F6EFE3;line-height:1.22;text-align:center;text-shadow:0 4px 24px rgba(0,0,0,0.55)">
+      1회 타로리딩
+    </div>
+    <div class="serif price-mark" style="font-size:104px;font-weight:700;line-height:1.25">
+      단돈 5,000원
+    </div>
+  </div>
+
+  <!-- 하단 CTA -->
+  <div style="position:absolute;left:0;right:0;bottom:56px;display:flex;flex-direction:column;align-items:center;gap:20px">
+    <div style="font-size:28px;font-weight:600;color:rgba(246,239,227,0.88);letter-spacing:0.02em">30분 1:1 대면 · 예약 30초 · 현장 결제</div>
+    <div style="display:inline-flex;align-items:center;gap:16px;background:#E9B96E;color:#10142B;font-size:44px;font-weight:700;padding:28px 64px;border-radius:999px;box-shadow:0 14px 46px rgba(233,185,110,0.5)">
+      지금 바로 신청하기 <span style="font-size:40px">→</span>
+    </div>
+    <div style="font-size:25px;color:rgba(246,239,227,0.66)">안산 단원구 광덕대로 168 · <b style="color:#E9B96E">@myoyeon.tarot</b></div>
+  </div>
+</body>
+</html>

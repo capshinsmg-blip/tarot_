@@ -20,8 +20,14 @@
 | [poster_v1.png](poster_v1.png) | 1080×1350 (4:5) | 피드 (세로 면적 최대) |
 | [poster_v1_1x1.png](poster_v1_1x1.png) | 1080×1080 (1:1) | 피드·탐색·모든 배치 호환 |
 | [poster_v1_9x16.png](poster_v1_9x16.png) | 1080×1920 (9:16) | 스토리 · 릴스 |
-| [poster_v2.png](poster_v2.png) ★ | 1080×1350 (4:5) | **예약 직행** — 피드 |
-| [poster_v2_9x16.png](poster_v2_9x16.png) ★ | 1080×1920 (9:16) | **예약 직행** — 스토리·릴스 |
+| [poster_v2.png](poster_v2.png) | 1080×1350 (4:5) | 예약 직행 — 피드 |
+| [poster_v2_9x16.png](poster_v2_9x16.png) | 1080×1920 (9:16) | 예약 직행 — 스토리·릴스 |
+| [poster_v3.png](poster_v3.png) ★★ | 1080×1350 (4:5) | **예약 직행 · 역동 묘연이 히어로** — 피드 |
+| [poster_v3_9x16.png](poster_v3_9x16.png) ★★ | 1080×1920 (9:16) | **예약 직행 · 역동 묘연이 히어로** — 스토리·릴스 |
+
+- **v3 = v2와 같은 오퍼**(오픈 이벤트가 5,000원 직행)에 소재만 교체: 힉스필드 생성 **점프하는 묘연이 풀블리드 히어로** + 상단 고정 후킹("1회 타로리딩 단돈 5,000원" 골드 마커) — 인스타 CTA 트렌드(풀블리드·오버사이즈 타이포·마커 하이라이트·알약 CTA) 반영 (2026-08-20)
+- v3 사용 시: **§2-B의 v2 카피·CTA(지금 예약)·`book=1` URL 그대로**, `utm_content`만 `poster_v3`로 교체
+- 캐릭터 원본: [assets/myoyeon_dynamic.png](assets/myoyeon_dynamic.png) (nano_banana_pro, 레퍼런스 `myoyeon_main`, 2크레딧)
 
 - 재렌더: `node feed/ads/render.js poster_v1` / `... poster_v1_1x1 1080 1080` / `... poster_v1_9x16 1080 1920`
 - **1:1**은 모든 배치에서 안전하게 노출되는 범용 비율 — 배치를 하나로 통일하고 싶을 때 기본값으로 좋음
