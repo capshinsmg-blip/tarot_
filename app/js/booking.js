@@ -44,6 +44,10 @@
         if (n === "ViewContent") scheduleEventPopup(); // 결과 확인 → 잠시 후 오픈 이벤트 팝업
       };
     }
+    // 예약 직행 딥링크 (?book=1) — "바로 신청" 광고 소재의 착지: 예약 시트를 곧장 연다
+    try {
+      if (new URLSearchParams(location.search).get("book")) setTimeout(openBooking, 450);
+    } catch (e) { /* 무시 */ }
   });
 
   /* ── 오픈 이벤트 팝업 (결과 확인 후 예약 후킹 — 하루 1회) ── */
@@ -92,6 +96,12 @@
   }
 
   /* ── 유틸 ── */
+  function hasDrawToday() { // 오늘 카드를 뽑았는지 — 딥링크 직행 방문자 구분용
+    try {
+      const s = JSON.parse(localStorage.getItem("myoyeon_daily_v1"));
+      return !!(s && typeof todayStr === "function" && s.d === todayStr());
+    } catch (e) { return false; }
+  }
   function savedCat() {
     try {
       const s = JSON.parse(localStorage.getItem("myoyeon_daily_v1"));
@@ -129,7 +139,7 @@
         <div class="bk-menu">
           <div class="bk-menu-title">🔮 1:1 타로리딩<span>대면</span></div>
           <div class="bk-menu-meta">${MENU_LINE}</div>
-          <p class="bk-menu-desc">${CAT_LINE[savedCat()]}</p>
+          <p class="bk-menu-desc">${hasDrawToday() ? CAT_LINE[savedCat()] : "연애·금전·일 — 궁금한 이야기를 공방에서 차분히 풀어봐요"}</p>
         </div>
         <div class="bk-loc">
           <p class="bk-label">📍 공방 위치 — 오프라인 방문 리딩이에요</p>
