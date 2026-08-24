@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../../templates/base.css">
+<style>
+  .pick { position: relative; width: 300px; aspect-ratio: 2/3; flex: 0 0 auto; }
+  .pick img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 50px rgba(233,185,110,.18);
+    border: 1px solid rgba(233,185,110,.3); }
+  .pick .num {
+    position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #E9B96E; color: #10142B;
+    font-size: 34px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(233,185,110,.45);
+    font-family: 'Gowun Batang', serif;
+  }
+</style>
+</head>
+<body class="bg-cover">
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 80px;gap:44px">
+    <div class="label">묘연의 주간 카드 · 8/25 – 8/31</div>
+    <div class="headline" style="font-size:64px">이번 주, 나에게<br>필요한 <span class="gold">메시지</span>는?</div>
+
+    <div style="display:flex;gap:34px;margin-top:26px;align-items:flex-end">
+      <div class="pick" style="transform:rotate(-7deg) translateY(14px)"><span class="num">①</span><img src="../../../../../app/assets/cards/back.webp" alt="카드 뒷면 1"></div>
+      <div class="pick" style="z-index:2"><span class="num">②</span><img src="../../../../../app/assets/cards/back.webp" alt="카드 뒷면 2"></div>
+      <div class="pick" style="transform:rotate(7deg) translateY(14px)"><span class="num">③</span><img src="../../../../../app/assets/cards/back.webp" alt="카드 뒷면 3"></div>
+    </div>
+
+    <div class="sub" style="font-size:32px;margin-top:10px">너무 오래 고민하지 말고,<br>마음이 가는 카드 하나를 골라보세요</div>
+    <div class="sub" style="font-size:24px;color:rgba(246,239,227,.5)">넘기면 카드별 메시지가 나와요 →</div>
+  </div>
+</body>
+</html>

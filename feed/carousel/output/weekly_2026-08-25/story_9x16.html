@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../templates/base.css">
+<style>
+  /* 주간 카드 스토리 티저 (9:16) — 위·아래 ~250px 인스타 UI 안전영역.
+     가운데 여백은 인스타 설문 스티커(①②③)를 얹는 자리 */
+  body {
+    width: 1080px; height: 1920px;
+    background: radial-gradient(125% 80% at 50% 8%, #1F2547 0%, #141A34 45%, #0C0F22 100%);
+  }
+  .frame {
+    position: absolute; inset: 46px;
+    border: 2px solid rgba(233,185,110,0.5); border-radius: 26px;
+    box-shadow: inset 0 0 60px rgba(233,185,110,0.06);
+  }
+  .frame::before { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(233,185,110,0.22); border-radius: 18px; }
+  .pick { position: relative; width: 250px; aspect-ratio: 2/3; flex: 0 0 auto; }
+  .pick img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px;
+    box-shadow: 0 22px 55px rgba(0,0,0,.55), 0 0 45px rgba(233,185,110,.18);
+    border: 1px solid rgba(233,185,110,.3); }
+  .pick .num {
+    position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+    width: 58px; height: 58px; border-radius: 50%;
+    background: #E9B96E; color: #10142B; font-size: 30px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 22px rgba(233,185,110,.45);
+    font-family: 'Gowun Batang', serif;
+  }
+</style>
+</head>
+<body>
+  <div class="frame"></div>
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:280px 90px 0;gap:40px">
+    <div class="label">묘연의 주간 카드 · 8/25 – 8/31</div>
+    <div class="headline" style="font-size:68px">이번 주, 나에게<br>필요한 <span class="gold">메시지</span>는?</div>
+
+    <div style="display:flex;gap:28px;margin-top:20px;align-items:flex-end">
+      <div class="pick" style="transform:rotate(-7deg) translateY(12px)"><span class="num">①</span><img src="../../../../app/assets/cards/back.webp" alt="카드 1"></div>
+      <div class="pick" style="z-index:2"><span class="num">②</span><img src="../../../../app/assets/cards/back.webp" alt="카드 2"></div>
+      <div class="pick" style="transform:rotate(7deg) translateY(12px)"><span class="num">③</span><img src="../../../../app/assets/cards/back.webp" alt="카드 3"></div>
+    </div>
+
+    <div class="sub" style="font-size:33px;margin-top:8px">마음이 가는 카드에 투표해 보세요 👇</div>
+    <!-- ↓ 이 아래 빈 공간(세로 ~380px)에 인스타 설문 스티커(①/②/③)를 얹는다 -->
+  </div>
+</body>
+</html>
