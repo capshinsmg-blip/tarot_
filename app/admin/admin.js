@@ -120,9 +120,10 @@ async function loadSlots() {
     renderSlotGrid();
   } catch (e) { /* 401은 showLogin 처리됨 */ }
 }
+let statsRange = "7"; // 7 | 30 | all — 통계 조회 기간
 async function loadStats() {
   try {
-    const s = await api("/admin/stats");
+    const s = await api(`/admin/stats?range=${statsRange}`);
     renderStats(s);
   } catch (e) { /* 무시 */ }
   try {
@@ -243,32 +244,50 @@ async function toggleSlots(times, open) {
   } catch (e) { toast(esc(e.message)); }
 }
 
-/* ── A4 통계 렌더 ── */
+/* ── A4 통계 렌더 (기간 선택 + 일별 추이 + 누적) ── */
 function renderStats(s) {
+  const rangeLabel = s.range === "all" ? "전체" : `${s.range}일`;
+
   $id("stat-cards").innerHTML = `
     <div class="stat"><b>${s.reservations.pending}</b><span>승인 대기</span></div>
     <div class="stat"><b>${s.reservations.upcoming}</b><span>확정 · 예정</span></div>
     <div class="stat"><b>${s.reservations.week}</b><span>최근 7일 신청</span></div>`;
+  $id("stat-cards2").innerHTML = `
+    <div class="stat"><b>${(s.totals && s.totals.page_view) || 0}</b><span>누적 방문</span></div>
+    <div class="stat"><b>${(s.totals && s.totals.booking_submit) || 0}</b><span>누적 신청</span></div>
+    <div class="stat"><b>${(s.reservations.total ?? "-")}</b><span>누적 예약 (${s.since || ""}~)</span></div>`;
 
   const steps = [
     ["방문", "page_view"], ["뽑기 시작", "draw_start"], ["결과 확인", "result_view"],
     ["예약 열람", "booking_open"], ["예약 신청", "booking_submit"],
   ];
+  const fr = s.funnelRange || s.funnelWeek || {};
   const rows = steps.map(([label, key], i) => {
     const t = s.funnelToday[key] || 0;
-    const w = s.funnelWeek[key] || 0;
-    const prevW = i === 0 ? 0 : (s.funnelWeek[steps[i - 1][1]] || 0);
+    const w = fr[key] || 0;
+    const prevW = i === 0 ? 0 : (fr[steps[i - 1][1]] || 0);
     const pct = i === 0 || !prevW ? "" : `<span class="pct">${Math.round((w / prevW) * 100)}%</span>`;
     return `<tr><td>${label}</td><td>${t}</td><td>${w} ${pct}</td></tr>`;
   }).join("");
-  $id("funnel").innerHTML = `<tr><th>단계</th><th>오늘</th><th>7일 (전환)</th></tr>${rows}`;
+  $id("funnel-title").textContent = `퍼널 (방문 → 신청)`;
+  $id("funnel").innerHTML = `<tr><th>단계</th><th>오늘</th><th>${rangeLabel} (전환)</th></tr>${rows}`;
 
-  // 유입 경로 (9단계 — planning/09 §2 링크 맵과 표기 동일)
-  const srcRows = (s.sourcesWeek || [])
+  // 유입 경로 (선택 기간)
+  $id("sources-title").textContent = `유입 경로 (${rangeLabel})`;
+  const srcRows = (s.sourcesRange || s.sourcesWeek || [])
     .map((r) => `<tr><td>${esc(r.src)}</td><td>${r.visits}</td><td>${r.bookings}</td></tr>`)
     .join("");
   $id("sources").innerHTML = `<tr><th>유입</th><th>방문</th><th>신청</th></tr>` +
     (srcRows || `<tr><td colspan="3" class="empty-cell">아직 유입 데이터가 없어요</td></tr>`);
+
+  // 일별 추이 (최신순)
+  const dailyRows = (s.daily || []).map((d) =>
+    `<tr><td>${d.date === s.today ? "<b>오늘</b>" : d.date.slice(5).replace("-", "/")}</td>` +
+    `<td>${d.page_view || 0}</td><td>${d.draw_start || 0}</td><td>${d.result_view || 0}</td>` +
+    `<td>${d.booking_open || 0}</td><td>${d.booking_submit || 0}</td></tr>`
+  ).join("");
+  $id("daily").innerHTML = `<tr><th>날짜</th><th>방문</th><th>뽑기</th><th>결과</th><th>열람</th><th>신청</th></tr>` +
+    (dailyRows || `<tr><td colspan="6" class="empty-cell">아직 데이터가 없어요</td></tr>`);
 }
 
 /* ── A4 텔레그램 봇 연결 ── */
@@ -309,6 +328,13 @@ document.querySelectorAll("#tab-res .chip").forEach((chip) => {
     document.querySelectorAll("#tab-res .chip").forEach((c) => c.classList.toggle("on", c === chip));
     resScope = chip.dataset.scope;
     loadReservations();
+  };
+});
+document.querySelectorAll("#stats-range .chip").forEach((chip) => {
+  chip.onclick = () => {
+    document.querySelectorAll("#stats-range .chip").forEach((c) => c.classList.toggle("on", c === chip));
+    statsRange = chip.dataset.range;
+    loadStats();
   };
 });
 $id("btn-login").onclick = tryLogin;

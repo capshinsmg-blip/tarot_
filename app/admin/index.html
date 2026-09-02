@@ -67,14 +67,25 @@
 
     <!-- A4 · 통계 -->
     <section id="tab-stats" class="hidden">
+      <div class="chips" id="stats-range">
+        <button class="chip on" data-range="7">7일</button>
+        <button class="chip" data-range="30">30일</button>
+        <button class="chip" data-range="all">전체</button>
+      </div>
       <div id="stat-cards" class="cards"></div>
-      <h2>퍼널 (방문 → 신청)</h2>
-      <table id="funnel"></table>
-      <p class="hint">랜딩 자체 집계예요. 메타 픽셀(12단계) 연동 전에도 쌓여요.</p>
+      <div id="stat-cards2" class="cards"></div>
 
-      <h2>유입 경로 (7일)</h2>
+      <h2 id="funnel-title">퍼널 (방문 → 신청)</h2>
+      <table id="funnel"></table>
+      <p class="hint">랜딩 자체 집계예요. 데이터는 D1에 계속 쌓이고, 위 기간 버튼으로 언제든 다시 볼 수 있어요.</p>
+
+      <h2 id="sources-title">유입 경로</h2>
       <table id="sources"></table>
       <p class="hint">바이오 = instagram/bio · 스토리 = instagram/story · 광고 = meta/paid · 직접 접속 = direct</p>
+
+      <h2>일별 추이</h2>
+      <div class="table-scroll"><table id="daily"></table></div>
+      <p class="hint">하루 단위 방문·뽑기·신청 수 (최근 90일까지 표시, 원본은 전부 보관)</p>
 
       <h2>🔔 텔레그램 담당배정봇</h2>
       <div id="tg-box" class="tgbox">확인 중…</div>

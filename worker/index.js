@@ -65,7 +65,7 @@ async function handleApi(req, env, ctx, url) {
     if (m && method === "POST") return adminUpdateReservation(req, env, ctx, Number(m[1]));
     if (path === "/api/admin/slots" && method === "GET") return adminListSlots(env, url);
     if (path === "/api/admin/slots" && method === "POST") return adminToggleSlots(req, env);
-    if (path === "/api/admin/stats" && method === "GET") return adminStats(env);
+    if (path === "/api/admin/stats" && method === "GET") return adminStats(env, url);
     if (path === "/api/admin/telegram/status" && method === "GET") return tgStatus(env);
     if (path === "/api/admin/telegram/setup" && method === "POST") return tgSetup(env, url);
   }
@@ -412,14 +412,17 @@ async function adminToggleSlots(req, env) {
   return json({ ok: true, closed: toClose.length, locked: lockedSet.size });
 }
 
-/* ── 관리자: 통계 (예약 현황 + 퍼널) ── */
-async function adminStats(env) {
+/* ── 관리자: 통계 (기간 선택 7/30/전체 + 일별 추이 + 누적 — 데이터는 D1에 영구 적재) ── */
+async function adminStats(env, url) {
   const today = kstParts().date;
-  const weekAgo = addDays(today, -6);
-  const funnel = async (from) => {
+  const rangeParam = (url && url.searchParams.get("range")) || "7";
+  const days = rangeParam === "all" ? null : Math.min(Math.max(parseInt(rangeParam, 10) || 7, 1), 365);
+  const from = days ? addDays(today, -(days - 1)) : "2000-01-01";
+
+  const funnel = async (f) => {
     const rs = await env.DB.prepare(
       "SELECT name, COUNT(*) AS c FROM events WHERE date >= ?1 GROUP BY name"
-    ).bind(from).all();
+    ).bind(f).all();
     return Object.fromEntries(rs.results.map((r) => [r.name, r.c]));
   };
   const pending = await env.DB.prepare("SELECT COUNT(*) AS c FROM reservations WHERE status = 'pending'").first();
@@ -430,20 +433,44 @@ async function adminStats(env) {
   const week = await env.DB.prepare(
     "SELECT COUNT(*) AS c FROM reservations WHERE created_at >= datetime('now', '-7 days')"
   ).first();
-  // 유입 경로별 방문·신청 (9단계 — 구버전 이벤트는 direct로 집계)
+  const totalRes = await env.DB.prepare("SELECT COUNT(*) AS c FROM reservations").first();
+
+  // 유입 경로별 방문·신청 (선택 기간 기준 — 구버전 이벤트는 direct)
   const sources = await env.DB.prepare(
     `SELECT COALESCE(NULLIF(source, ''), 'direct') AS src,
             SUM(CASE WHEN name = 'page_view' THEN 1 ELSE 0 END) AS visits,
             SUM(CASE WHEN name = 'booking_submit' THEN 1 ELSE 0 END) AS bookings
      FROM events WHERE date >= ?1
      GROUP BY src ORDER BY visits DESC LIMIT 8`
-  ).bind(weekAgo).all();
+  ).bind(from).all();
+
+  // 일별 추이 (표 페이로드 보호를 위해 최대 90일치)
+  const dailyFrom = days && days <= 90 ? from : addDays(today, -89);
+  const dailyRaw = await env.DB.prepare(
+    "SELECT date, name, COUNT(*) AS c FROM events WHERE date >= ?1 GROUP BY date, name"
+  ).bind(dailyFrom).all();
+  const byDate = {};
+  for (const r of dailyRaw.results) {
+    if (!byDate[r.date]) byDate[r.date] = { date: r.date };
+    byDate[r.date][r.name] = r.c;
+  }
+  const daily = Object.values(byDate).sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  // 전체 누적 (집계 시작일부터 — 사라지지 않는 숫자)
+  const totalsRs = await env.DB.prepare("SELECT name, COUNT(*) AS c FROM events GROUP BY name").all();
+  const totals = Object.fromEntries(totalsRs.results.map((r) => [r.name, r.c]));
+  const firstDay = await env.DB.prepare("SELECT MIN(date) AS d FROM events").first();
+
+  const funnelRange = await funnel(from);
   return json({
-    ok: true, today,
-    reservations: { pending: pending.c, upcoming: upcoming.c, week: week.c },
+    ok: true, today, range: days ? String(days) : "all",
+    reservations: { pending: pending.c, upcoming: upcoming.c, week: week.c, total: totalRes.c },
     funnelToday: await funnel(today),
-    funnelWeek: await funnel(weekAgo),
-    sourcesWeek: sources.results,
+    funnelRange,
+    funnelWeek: funnelRange,   // 구버전 캐시 프론트 호환
+    sourcesRange: sources.results,
+    sourcesWeek: sources.results, // 〃
+    daily, totals, since: (firstDay && firstDay.d) || today,
   });
 }
 
